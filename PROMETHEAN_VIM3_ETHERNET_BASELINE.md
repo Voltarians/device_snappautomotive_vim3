@@ -424,6 +424,26 @@ For final hardware acceptance:
 
 The accepted Promethean Core baseline passed this cold-power test with the static Ethernet configuration returning automatically and 6/6 host pings successful.
 
+## USB-free cold-boot service acceptance
+
+A stronger service-access acceptance test was completed on 2026-09-22 with the VIM3 disconnected from USB and powered independently.
+
+Observed after cold boot:
+
+```text
+ping 192.168.137.3 = 4/4 replies, 0% loss, 0-1 ms
+TCP 192.168.137.3:5555 = reachable
+adb connect 192.168.137.3:5555 = connected
+adb devices = only 192.168.137.3:5555
+scrcpy 4.1 = successful over TCP/IP
+Android = 15
+display stream = 1024x768
+```
+
+No USB connection was present during this test. The board cold-booted from independent power, configured Ethernet, exposed ADB on TCP/5555, and provided full remote UI control through scrcpy over the Promethean Ethernet link.
+
+This establishes that USB is not required for normal Promethean Core VIM3 service/debug access after the accepted userdebug image is installed.
+
 ## Acceptance definition
 
 The VIM3 Ethernet baseline is accepted only when all of the following are true after a full power loss:
@@ -438,5 +458,6 @@ The VIM3 Ethernet baseline is accepted only when all of the following are true a
 - Windows can ping `192.168.137.3` reliably.
 - No `adb remount`, manual APK push, or manual `ip addr add` is required.
 - On `userdebug`/`eng` builds, Ethernet ADB is available at `192.168.137.3:5555` from the built system image without issuing `adb tcpip 5555` after reboot.
+- With USB physically disconnected and independent power applied, Ethernet ADB and scrcpy remote UI remain fully functional after cold boot.
 
 When all conditions pass, the baseline is considered **Promethean Core VIM3 AAOS Ethernet — ACCEPTED**.
