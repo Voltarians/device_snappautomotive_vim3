@@ -25,6 +25,7 @@ Wi-Fi remains available for the normal/default route. The Promethean Ethernet in
 This branch contains:
 
 - `d4689a6` — Add persistent Promethean VIM3 Ethernet configuration
+- `3bbc727` — Enable persistent Ethernet ADB for Promethean debug builds
 
 The companion Yukawa fork/branch contains:
 
@@ -33,6 +34,43 @@ The companion Yukawa fork/branch contains:
 - Commit: `eb21bf8` — Match VIM3 super geometry to physical 3 GiB partition
 
 Both changes are required for the fully tested baseline.
+
+## Persistent Ethernet ADB
+
+Persistent Ethernet ADB is enabled only for `userdebug` and `eng` builds in `snapp_car_vim3.mk`:
+
+```make
+# Promethean development Ethernet ADB
+ifneq ($(filter userdebug eng,$(TARGET_BUILD_VARIANT)),)
+PRODUCT_SYSTEM_PROPERTIES += \\
+    persist.adb.tcp.port=5555
+endif
+```
+
+This keeps TCP ADB out of production `user` builds while making the Promethean development/service image reachable over the dedicated Ethernet backbone without issuing `adb tcpip 5555` after every reboot.
+
+Source-integrated hardware acceptance was completed on 2026-09-22 using the flashed 3 GiB `super.img` built after commit `3bbc727`.
+
+Accepted image hash:
+
+```text
+54f958410bf912ebdc164af86b3c9ddd8b41ede969efed516b7363ad8c7681d8  super.img
+```
+
+Observed after flashing and rebooting, without issuing a new `adb tcpip 5555` command:
+
+```text
+192.168.137.3 responds to ping with 0-1 ms RTT
+TCP 192.168.137.3:5555 = reachable
+adb connect 192.168.137.3:5555 = connected
+ro.build.type = userdebug
+persist.adb.tcp.port = 5555
+/system/build.prop:178:persist.adb.tcp.port=5555
+/proc/device-tree/model = Khadas VIM3
+kernel = 5.15.74-gbd68ce64e647-ab9273711
+```
+
+At the time of this acceptance check, `service.adb.tcp.port` was empty while `persist.adb.tcp.port` was `5555`; TCP ADB was nevertheless listening and functional on port 5555.
 
 ## Persistent Connectivity RRO
 
@@ -119,8 +157,11 @@ system.img
 PrometheanConnectivityOverlay.apk
 35dd228c545c2680d119ac22401bf18b18b6694e82cf4addcec3947137146c09
 
-3 GiB super.img
+Original accepted 3 GiB super.img
 75949c296255c9494747abb236a1097e3ed5d48aaf089a6789b36e325b662ce4
+
+Current accepted 3 GiB super.img with persistent Ethernet ADB
+54f958410bf912ebdc164af86b3c9ddd8b41ede969efed516b7363ad8c7681d8
 ```
 
 Verify the overlay is physically contained in `system.img`:
@@ -396,5 +437,6 @@ The VIM3 Ethernet baseline is accepted only when all of the following are true a
 - LP metadata describes the physical 3 GiB super partition correctly.
 - Windows can ping `192.168.137.3` reliably.
 - No `adb remount`, manual APK push, or manual `ip addr add` is required.
+- On `userdebug`/`eng` builds, Ethernet ADB is available at `192.168.137.3:5555` from the built system image without issuing `adb tcpip 5555` after reboot.
 
 When all conditions pass, the baseline is considered **Promethean Core VIM3 AAOS Ethernet — ACCEPTED**.
