@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array translatable="false" name="config_ethernet_interfaces">
+        <item>eth0;11,12,13,14,15,28,37;ip=192.168.137.3/24;</item>
+    </string-array>
+</resources>

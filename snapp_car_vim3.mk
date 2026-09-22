@@ -45,6 +45,7 @@ PRODUCT_PACKAGES += \
 	android.hardware.automotive.remoteaccess@V2-default-service \
 	android.hardware.automotive.ivn@V1-default-service \
 	CarConnectivityOverlay \
+	PrometheanConnectivityOverlay \
 	CarWifiOverlay \
 	librs_jni
 
