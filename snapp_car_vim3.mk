@@ -156,6 +156,12 @@ PRODUCT_PROPERTY_OVERRIDES += \
         ro.config.media_vol_default=0 \
         log.tag.CarTrustAgentUnlockEvent=I
 
+# Promethean development Ethernet ADB
+ifneq ($(filter userdebug eng,$(TARGET_BUILD_VARIANT)),)
+PRODUCT_SYSTEM_PROPERTIES += \
+    persist.adb.tcp.port=5555
+endif
+
 PRODUCT_NAME := snapp_car_vim3
 PRODUCT_CHARACTERISTICS := automotive
 ifeq ($(SNAPP_MODEL),)
