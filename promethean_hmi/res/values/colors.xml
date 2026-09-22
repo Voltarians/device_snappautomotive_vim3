@@ -1,0 +1,12 @@
+<resources>
+    <color name="background">#05090C</color>
+    <color name="panel">#10181D</color>
+    <color name="panel_alt">#0B1216</color>
+    <color name="panel_stroke">#27414A</color>
+    <color name="text_primary">#F2F7F8</color>
+    <color name="text_secondary">#93A7AF</color>
+    <color name="volt_cyan">#4ED9F5</color>
+    <color name="volt_green">#69E7A7</color>
+    <color name="volt_blue">#4CA7FF</color>
+    <color name="warning">#F1B84B</color>
+</resources>

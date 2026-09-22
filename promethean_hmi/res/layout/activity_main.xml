@@ -1,0 +1,306 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="18dp"
+    android:background="@color/background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/vehicle_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="VOLT"
+                android:textColor="@color/text_primary"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/hmi_subtitle"
+                android:textColor="@color/volt_cyan"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.14" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/connection_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/status_chip"
+            android:text="DEMO DATA • VEHICLE BUS NOT CONNECTED"
+            android:textColor="@color/warning"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/clock"
+            android:layout_width="120dp"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical|end"
+            android:text="10:36"
+            android:textColor="@color/text_primary"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/panel_background"
+            android:orientation="vertical"
+            android:padding="18dp">
+
+            <TextView
+                style="@style/PanelTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ELECTRIC RANGE" />
+
+            <TextView
+                android:id="@+id/range_value"
+                style="@style/MetricValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="37 mi"
+                android:textColor="@color/volt_green" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="@color/panel_stroke" />
+
+            <TextView
+                style="@style/PanelTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="BATTERY" />
+
+            <TextView
+                android:id="@+id/battery_value"
+                style="@style/MetricValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="72%"
+                android:textColor="@color/volt_cyan" />
+
+            <Space
+                android:layout_width="1dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <TextView
+                style="@style/PanelTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PROPULSION" />
+
+            <TextView
+                android:id="@+id/propulsion_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="ELECTRIC"
+                android:textColor="@color/volt_green"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="14dp"
+            android:layout_marginEnd="14dp"
+            android:layout_weight="1.45">
+
+            <View
+                android:layout_width="300dp"
+                android:layout_height="300dp"
+                android:layout_gravity="center"
+                android:background="@drawable/gauge_ring" />
+
+            <LinearLayout
+                android:layout_width="300dp"
+                android:layout_height="300dp"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/gear_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="P"
+                    android:textColor="@color/volt_cyan"
+                    android:textSize="30sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/speed_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="@color/text_primary"
+                    android:textSize="92sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="MPH"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.12" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/panel_background"
+            android:orientation="vertical"
+            android:padding="18dp">
+
+            <TextView
+                style="@style/PanelTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TRACTION POWER" />
+
+            <TextView
+                android:id="@+id/power_value"
+                style="@style/MetricValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0.0 kW"
+                android:textColor="@color/volt_blue" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="@color/panel_stroke" />
+
+            <TextView
+                android:id="@+id/section_title"
+                style="@style/PanelTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ENERGY" />
+
+            <TextView
+                android:id="@+id/section_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="5dp"
+                android:text="Electric drive overview"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp" />
+
+            <Space
+                android:layout_width="1dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <TextView
+                style="@style/PanelTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CLIMATE QUICK VIEW" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="72°"
+                    android:textColor="@color/text_primary"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="FAN 3"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="66dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/nav_energy"
+            style="@style/NavButton"
+            android:text="ENERGY" />
+
+        <Space android:layout_width="8dp" android:layout_height="1dp" />
+
+        <Button
+            android:id="@+id/nav_climate"
+            style="@style/NavButton"
+            android:text="CLIMATE" />
+
+        <Space android:layout_width="8dp" android:layout_height="1dp" />
+
+        <Button
+            android:id="@+id/nav_audio"
+            style="@style/NavButton"
+            android:text="AUDIO" />
+
+        <Space android:layout_width="8dp" android:layout_height="1dp" />
+
+        <Button
+            android:id="@+id/nav_vehicle"
+            style="@style/NavButton"
+            android:text="VEHICLE" />
+
+        <Space android:layout_width="8dp" android:layout_height="1dp" />
+
+        <Button
+            android:id="@+id/nav_apps"
+            style="@style/NavButton"
+            android:text="APPS" />
+    </LinearLayout>
+</LinearLayout>
