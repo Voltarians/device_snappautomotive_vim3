@@ -6,7 +6,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
+import android.widget.TextView;\nimport android.widget.GridLayout;\nimport android.widget.LinearLayout;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -35,7 +35,7 @@ public final class MainActivity extends Activity {
     private TextView chargingTile;
     private TextView tripTile;
     private TextView climateTile;
-    private TextView audioTile;
+    private TextView audioTile;\n    private GridLayout homeGrid;\n    private LinearLayout energyContent;
 
     private final Runnable refresh = new Runnable() {
         @Override
@@ -93,7 +93,7 @@ public final class MainActivity extends Activity {
         chargingTile = findViewById(R.id.charging_tile_value);
         tripTile = findViewById(R.id.trip_tile_value);
         climateTile = findViewById(R.id.climate_tile_value);
-        audioTile = findViewById(R.id.audio_tile_value);
+        audioTile = findViewById(R.id.audio_tile_value);\n        homeGrid = findViewById(R.id.home_grid);\n        energyContent = findViewById(R.id.energy_content);
     }
 
     private void bindNavigation() {
@@ -107,6 +107,15 @@ public final class MainActivity extends Activity {
         bindButton(R.id.nav_climate, "CLIMATE");
         bindButton(R.id.nav_apps, "APPS");
         bindButton(R.id.nav_settings, "SETTINGS");
+        bindButton(R.id.home_tile_energy, "ENERGY");
+        bindButton(R.id.home_tile_climate, "CLIMATE");
+        bindButton(R.id.home_tile_radio, "RADIO");
+        bindButton(R.id.home_tile_apps, "APPS");
+        bindButton(R.id.home_tile_phone, "PHONE");
+        bindButton(R.id.home_tile_nav, "NAV");
+        bindButton(R.id.home_tile_vehicle, "VEHICLE");
+        bindButton(R.id.home_tile_charging, "CHARGING");
+        bindButton(R.id.home_tile_settings, "SETTINGS");
     }
 
     private void bindButton(int id, String section) {
@@ -115,10 +124,16 @@ public final class MainActivity extends Activity {
     }
 
     private void selectSection(String section) {
-        if ("HOME".equals(section) || "ENERGY".equals(section)) {
+        if ("HOME".equals(section)) {
             showHome();
             return;
         }
+        if ("ENERGY".equals(section)) {
+            showEnergy();
+            return;
+        }
+        homeGrid.setVisibility(View.GONE);
+        energyContent.setVisibility(View.GONE);
         screenTitle.setText(section);
         switch (section) {
             case "CHARGING":
@@ -152,6 +167,15 @@ public final class MainActivity extends Activity {
     }
 
     private void showHome() {
+        homeGrid.setVisibility(View.VISIBLE);
+        energyContent.setVisibility(View.GONE);
+        screenTitle.setText("HOME");
+        screenSubtitle.setText("Promethean Core");
+    }
+
+    private void showEnergy() {
+        homeGrid.setVisibility(View.GONE);
+        energyContent.setVisibility(View.VISIBLE);
         screenTitle.setText("POWER FLOW");
         screenSubtitle.setText("Electric Drive");
     }
