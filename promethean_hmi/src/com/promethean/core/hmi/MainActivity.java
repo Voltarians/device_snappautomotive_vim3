@@ -51,6 +51,8 @@ public final class MainActivity extends Activity {
     private PhoneView phoneView;
     private LinearLayout navContent;
     private NavigationView navigationView;
+    private LinearLayout appsContent;
+    private AppsView appsView;
     private View topBar;
     private View sideNav;
     private View centerPanel;
@@ -127,6 +129,8 @@ public final class MainActivity extends Activity {
         phoneView = findViewById(R.id.phone_view);
         navContent = findViewById(R.id.nav_content);
         navigationView = findViewById(R.id.navigation_view);
+        appsContent = findViewById(R.id.apps_content);
+        appsView = findViewById(R.id.apps_view);
         topBar = findViewById(R.id.top_bar);
         sideNav = findViewById(R.id.side_nav);
         centerPanel = findViewById(R.id.center_panel);
@@ -194,6 +198,10 @@ public final class MainActivity extends Activity {
             showNavigation();
             return;
         }
+        if ("APPS".equals(section)) {
+            showApps();
+            return;
+        }
         showCategoryChrome();
         homeGrid.setVisibility(View.GONE);
         energyContent.setVisibility(View.GONE);
@@ -203,6 +211,7 @@ public final class MainActivity extends Activity {
         vehicleContent.setVisibility(View.GONE);
         phoneContent.setVisibility(View.GONE);
         navContent.setVisibility(View.GONE);
+        appsContent.setVisibility(View.GONE);
         screenTitle.setText(section);
         switch (section) {
             case "CHARGING":
@@ -250,6 +259,7 @@ public final class MainActivity extends Activity {
         vehicleContent.setVisibility(View.GONE);
         phoneContent.setVisibility(View.GONE);
         navContent.setVisibility(View.GONE);
+        appsContent.setVisibility(View.GONE);
 
         LinearLayout.LayoutParams params =
                 (LinearLayout.LayoutParams) centerPanel.getLayoutParams();
@@ -267,6 +277,7 @@ public final class MainActivity extends Activity {
         vehicleContent.setVisibility(View.GONE);
         phoneContent.setVisibility(View.GONE);
         navContent.setVisibility(View.GONE);
+        appsContent.setVisibility(View.GONE);
         screenTitle.setText("POWER FLOW");
         screenSubtitle.setText("Electric Drive");
     }
@@ -281,6 +292,7 @@ public final class MainActivity extends Activity {
         vehicleContent.setVisibility(View.GONE);
         phoneContent.setVisibility(View.GONE);
         navContent.setVisibility(View.GONE);
+        appsContent.setVisibility(View.GONE);
         screenTitle.setText("CHARGING");
         screenSubtitle.setText("Charge Status");
     }
@@ -295,6 +307,7 @@ public final class MainActivity extends Activity {
         vehicleContent.setVisibility(View.GONE);
         phoneContent.setVisibility(View.GONE);
         navContent.setVisibility(View.GONE);
+        appsContent.setVisibility(View.GONE);
         screenTitle.setText("CLIMATE");
         screenSubtitle.setText("Touch + Rotary Controls");
     }
@@ -319,6 +332,7 @@ public final class MainActivity extends Activity {
         vehicleContent.setVisibility(View.GONE);
         phoneContent.setVisibility(View.GONE);
         navContent.setVisibility(View.GONE);
+        appsContent.setVisibility(View.GONE);
         screenTitle.setText("RADIO");
         screenSubtitle.setText("Touch + Rotary Audio Controls");
     }
@@ -345,6 +359,7 @@ public final class MainActivity extends Activity {
         vehicleContent.setVisibility(View.VISIBLE);
         phoneContent.setVisibility(View.GONE);
         navContent.setVisibility(View.GONE);
+        appsContent.setVisibility(View.GONE);
         screenTitle.setText("VEHICLE");
         screenSubtitle.setText("Volt Status + Diagnostics");
     }
@@ -359,6 +374,7 @@ public final class MainActivity extends Activity {
         vehicleContent.setVisibility(View.GONE);
         phoneContent.setVisibility(View.VISIBLE);
         navContent.setVisibility(View.GONE);
+        appsContent.setVisibility(View.GONE);
         screenTitle.setText("PHONE");
         screenSubtitle.setText("Bluetooth + Calling");
     }
@@ -373,8 +389,24 @@ public final class MainActivity extends Activity {
         vehicleContent.setVisibility(View.GONE);
         phoneContent.setVisibility(View.GONE);
         navContent.setVisibility(View.VISIBLE);
+        appsContent.setVisibility(View.GONE);
         screenTitle.setText("NAVIGATION");
         screenSubtitle.setText("Map + Nearby");
+    }
+
+    private void showApps() {
+        showCategoryChrome();
+        homeGrid.setVisibility(View.GONE);
+        energyContent.setVisibility(View.GONE);
+        chargingContent.setVisibility(View.GONE);
+        climateContent.setVisibility(View.GONE);
+        radioContent.setVisibility(View.GONE);
+        vehicleContent.setVisibility(View.GONE);
+        phoneContent.setVisibility(View.GONE);
+        navContent.setVisibility(View.GONE);
+        appsContent.setVisibility(View.VISIBLE);
+        screenTitle.setText("APPS");
+        screenSubtitle.setText("Promethean Application Hub");
     }
 
     private void showCategoryChrome() {
