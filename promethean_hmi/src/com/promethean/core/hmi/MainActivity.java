@@ -45,6 +45,8 @@ public final class MainActivity extends Activity {
     private ClimateView climateView;
     private LinearLayout radioContent;
     private RadioView radioView;
+    private LinearLayout vehicleContent;
+    private VehicleView vehicleView;
     private View topBar;
     private View sideNav;
     private View centerPanel;
@@ -115,6 +117,8 @@ public final class MainActivity extends Activity {
         climateView = findViewById(R.id.climate_view);
         radioContent = findViewById(R.id.radio_content);
         radioView = findViewById(R.id.radio_view);
+        vehicleContent = findViewById(R.id.vehicle_content);
+        vehicleView = findViewById(R.id.vehicle_view);
         topBar = findViewById(R.id.top_bar);
         sideNav = findViewById(R.id.side_nav);
         centerPanel = findViewById(R.id.center_panel);
@@ -170,12 +174,17 @@ public final class MainActivity extends Activity {
             showRadio();
             return;
         }
+        if ("VEHICLE".equals(section)) {
+            showVehicle();
+            return;
+        }
         showCategoryChrome();
         homeGrid.setVisibility(View.GONE);
         energyContent.setVisibility(View.GONE);
         chargingContent.setVisibility(View.GONE);
         climateContent.setVisibility(View.GONE);
         radioContent.setVisibility(View.GONE);
+        vehicleContent.setVisibility(View.GONE);
         screenTitle.setText(section);
         switch (section) {
             case "CHARGING":
@@ -220,6 +229,7 @@ public final class MainActivity extends Activity {
         chargingContent.setVisibility(View.GONE);
         climateContent.setVisibility(View.GONE);
         radioContent.setVisibility(View.GONE);
+        vehicleContent.setVisibility(View.GONE);
 
         LinearLayout.LayoutParams params =
                 (LinearLayout.LayoutParams) centerPanel.getLayoutParams();
@@ -234,6 +244,7 @@ public final class MainActivity extends Activity {
         chargingContent.setVisibility(View.GONE);
         climateContent.setVisibility(View.GONE);
         radioContent.setVisibility(View.GONE);
+        vehicleContent.setVisibility(View.GONE);
         screenTitle.setText("POWER FLOW");
         screenSubtitle.setText("Electric Drive");
     }
@@ -245,6 +256,7 @@ public final class MainActivity extends Activity {
         chargingContent.setVisibility(View.VISIBLE);
         climateContent.setVisibility(View.GONE);
         radioContent.setVisibility(View.GONE);
+        vehicleContent.setVisibility(View.GONE);
         screenTitle.setText("CHARGING");
         screenSubtitle.setText("Charge Status");
     }
@@ -256,6 +268,7 @@ public final class MainActivity extends Activity {
         chargingContent.setVisibility(View.GONE);
         climateContent.setVisibility(View.VISIBLE);
         radioContent.setVisibility(View.GONE);
+        vehicleContent.setVisibility(View.GONE);
         screenTitle.setText("CLIMATE");
         screenSubtitle.setText("Touch + Rotary Controls");
     }
@@ -277,6 +290,7 @@ public final class MainActivity extends Activity {
         chargingContent.setVisibility(View.GONE);
         climateContent.setVisibility(View.GONE);
         radioContent.setVisibility(View.VISIBLE);
+        vehicleContent.setVisibility(View.GONE);
         screenTitle.setText("RADIO");
         screenSubtitle.setText("Touch + Rotary Audio Controls");
     }
@@ -291,6 +305,18 @@ public final class MainActivity extends Activity {
 
     public void onTuneRotaryPress() {
         radioView.cycleTuneRotaryMode();
+    }
+
+    private void showVehicle() {
+        showCategoryChrome();
+        homeGrid.setVisibility(View.GONE);
+        energyContent.setVisibility(View.GONE);
+        chargingContent.setVisibility(View.GONE);
+        climateContent.setVisibility(View.GONE);
+        radioContent.setVisibility(View.GONE);
+        vehicleContent.setVisibility(View.VISIBLE);
+        screenTitle.setText("VEHICLE");
+        screenSubtitle.setText("Volt Status + Diagnostics");
     }
 
     private void showCategoryChrome() {
@@ -325,6 +351,7 @@ public final class MainActivity extends Activity {
         audioTile.setText(state.audioSummary);
         powerFlowView.setVehicleState(state);
         chargingView.setVehicleState(state);
+        vehicleView.setVehicleState(state);
     }
 
     @SuppressWarnings("deprecation")
