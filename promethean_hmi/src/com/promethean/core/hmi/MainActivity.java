@@ -40,6 +40,11 @@ public final class MainActivity extends Activity {
     private TextView audioTile;
     private GridLayout homeGrid;
     private LinearLayout energyContent;
+    private View topBar;
+    private View sideNav;
+    private View centerPanel;
+    private View rightInfoPanel;
+    private View bottomQuickBar;
 
     private final Runnable refresh = new Runnable() {
         @Override
@@ -100,6 +105,11 @@ public final class MainActivity extends Activity {
         audioTile = findViewById(R.id.audio_tile_value);
         homeGrid = findViewById(R.id.home_grid);
         energyContent = findViewById(R.id.energy_content);
+        topBar = findViewById(R.id.top_bar);
+        sideNav = findViewById(R.id.side_nav);
+        centerPanel = findViewById(R.id.center_panel);
+        rightInfoPanel = findViewById(R.id.right_info_panel);
+        bottomQuickBar = findViewById(R.id.bottom_quick_bar);
     }
 
     private void bindNavigation() {
@@ -138,6 +148,7 @@ public final class MainActivity extends Activity {
             showEnergy();
             return;
         }
+        showCategoryChrome();
         homeGrid.setVisibility(View.GONE);
         energyContent.setVisibility(View.GONE);
         screenTitle.setText(section);
@@ -173,17 +184,45 @@ public final class MainActivity extends Activity {
     }
 
     private void showHome() {
+        topBar.setVisibility(View.GONE);
+        sideNav.setVisibility(View.GONE);
+        rightInfoPanel.setVisibility(View.GONE);
+        bottomQuickBar.setVisibility(View.GONE);
+        screenTitle.setVisibility(View.GONE);
+        screenSubtitle.setVisibility(View.GONE);
         homeGrid.setVisibility(View.VISIBLE);
         energyContent.setVisibility(View.GONE);
-        screenTitle.setText("HOME");
-        screenSubtitle.setText("Promethean Core");
+
+        LinearLayout.LayoutParams params =
+                (LinearLayout.LayoutParams) centerPanel.getLayoutParams();
+        params.setMarginStart(0);
+        centerPanel.setLayoutParams(params);
     }
 
     private void showEnergy() {
+        showCategoryChrome();
         homeGrid.setVisibility(View.GONE);
         energyContent.setVisibility(View.VISIBLE);
         screenTitle.setText("POWER FLOW");
         screenSubtitle.setText("Electric Drive");
+    }
+
+    private void showCategoryChrome() {
+        topBar.setVisibility(View.VISIBLE);
+        sideNav.setVisibility(View.VISIBLE);
+        rightInfoPanel.setVisibility(View.VISIBLE);
+        bottomQuickBar.setVisibility(View.VISIBLE);
+        screenTitle.setVisibility(View.VISIBLE);
+        screenSubtitle.setVisibility(View.VISIBLE);
+
+        LinearLayout.LayoutParams params =
+                (LinearLayout.LayoutParams) centerPanel.getLayoutParams();
+        params.setMarginStart(dp(12));
+        centerPanel.setLayoutParams(params);
+    }
+
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
     private void render(VehicleState state) {
