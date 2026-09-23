@@ -111,113 +111,136 @@
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
-            <Space
-                android:layout_width="1dp"
+            <GridLayout
+                android:id="@+id/home_grid"
+                android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:columnCount="3"
+                android:rowCount="3"
+                android:useDefaultMargins="false">
+
+                <Button android:id="@+id/home_tile_energy" style="@style/HomeIconButton" android:drawableTop="@drawable/ic_energy" android:text="ENERGY" />
+                <Button android:id="@+id/home_tile_climate" style="@style/HomeIconButton" android:drawableTop="@drawable/ic_climate" android:text="CLIMATE" />
+                <Button android:id="@+id/home_tile_radio" style="@style/HomeIconButton" android:drawableTop="@drawable/ic_radio" android:text="RADIO" />
+
+                <Button android:id="@+id/home_tile_apps" style="@style/HomeIconButton" android:drawableTop="@drawable/ic_apps" android:text="APPS" />
+                <Button android:id="@+id/home_tile_phone" style="@style/HomeIconButton" android:drawableTop="@drawable/ic_phone" android:text="PHONE" />
+                <Button android:id="@+id/home_tile_nav" style="@style/HomeIconButton" android:drawableTop="@drawable/ic_nav" android:text="NAV" />
+
+                <Button android:id="@+id/home_tile_vehicle" style="@style/HomeIconButton" android:drawableTop="@drawable/ic_vehicle" android:text="VEHICLE" />
+                <Button android:id="@+id/home_tile_charging" style="@style/HomeIconButton" android:drawableTop="@drawable/ic_charging" android:text="CHARGING" />
+                <Button android:id="@+id/home_tile_settings" style="@style/HomeIconButton" android:drawableTop="@drawable/ic_settings" android:text="SETTINGS" />
+            </GridLayout>
 
             <LinearLayout
+                android:id="@+id/energy_content"
                 android:layout_width="match_parent"
-                android:layout_height="150dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 android:gravity="center"
-                android:orientation="horizontal">
+                android:orientation="vertical"
+                android:visibility="gone">
 
                 <LinearLayout
-                    android:layout_width="110dp"
-                    android:layout_height="110dp"
-                    android:background="@drawable/gauge_ring"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
                     android:gravity="center"
-                    android:orientation="vertical">
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="110dp"
+                        android:layout_height="110dp"
+                        android:background="@drawable/gauge_ring"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="BATTERY"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/battery_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="78%"
+                            android:textColor="@color/volt_cyan"
+                            android:textSize="28sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="BATTERY"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/battery_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="78%"
-                        android:textColor="@color/volt_cyan"
-                        android:textSize="28sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="80dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="→"
-                    android:textColor="@color/volt_cyan"
-                    android:textSize="42sp" />
-
-                <LinearLayout
-                    android:layout_width="130dp"
-                    android:layout_height="110dp"
-                    android:background="@drawable/panel_background"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="MOTOR"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/propulsion_value"
-                        android:layout_width="wrap_content"
+                        android:layout_width="80dp"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="ELECTRIC DRIVE"
-                        android:textColor="@color/volt_green"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:text="→"
+                        android:textColor="@color/volt_cyan"
+                        android:textSize="42sp" />
+
+                    <LinearLayout
+                        android:layout_width="130dp"
+                        android:layout_height="110dp"
+                        android:background="@drawable/panel_background"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="MOTOR"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/propulsion_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="ELECTRIC DRIVE"
+                            android:textColor="@color/volt_green"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="→"
+                        android:textColor="@color/volt_cyan"
+                        android:textSize="42sp" />
+
+                    <LinearLayout
+                        android:layout_width="110dp"
+                        android:layout_height="110dp"
+                        android:background="@drawable/gauge_ring"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="WHEELS"
+                            android:textColor="@color/text_primary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <TextView
-                    android:layout_width="80dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
                     android:gravity="center"
-                    android:text="→"
-                    android:textColor="@color/volt_cyan"
-                    android:textSize="42sp" />
-
-                <LinearLayout
-                    android:layout_width="110dp"
-                    android:layout_height="110dp"
-                    android:background="@drawable/gauge_ring"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="WHEELS"
-                        android:textColor="@color/text_primary"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
+                    android:text="Power-flow animation and live direction indicators will occupy this panel."
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
             </LinearLayout>
-
-            <Space
-                android:layout_width="1dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Power-flow animation and live direction indicators will occupy this panel."
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
         </LinearLayout>
 
         <LinearLayout
