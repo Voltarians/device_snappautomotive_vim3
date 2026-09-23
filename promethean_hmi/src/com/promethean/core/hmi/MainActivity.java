@@ -210,8 +210,8 @@ public final class MainActivity extends Activity {
     private void showCategoryChrome() {
         topBar.setVisibility(View.VISIBLE);
         sideNav.setVisibility(View.VISIBLE);
-        rightInfoPanel.setVisibility(View.VISIBLE);
-        bottomQuickBar.setVisibility(View.VISIBLE);
+        rightInfoPanel.setVisibility(View.GONE);
+        bottomQuickBar.setVisibility(View.GONE);
         screenTitle.setVisibility(View.VISIBLE);
         screenSubtitle.setVisibility(View.VISIBLE);
 
