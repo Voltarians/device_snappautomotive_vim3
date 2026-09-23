@@ -300,6 +300,7 @@ public final class PowerFlowView extends View {
                                String title,
                                String value,
                                int accent) {
+        paint.setStyle(Paint.Style.FILL);
         paint.setTextAlign(Paint.Align.CENTER);
         paint.setTypeface(android.graphics.Typeface.create(
                 android.graphics.Typeface.SANS_SERIF,
@@ -347,6 +348,7 @@ public final class PowerFlowView extends View {
                             float x, float y, float width,
                             String label, String value,
                             int valueColor) {
+        paint.setStyle(Paint.Style.FILL);
         paint.setTextAlign(Paint.Align.LEFT);
         paint.setTypeface(android.graphics.Typeface.create(
                 android.graphics.Typeface.SANS_SERIF,
