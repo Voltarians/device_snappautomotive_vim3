@@ -76,11 +76,11 @@ public final class PowerFlowView extends View {
         float engineX = w * 0.48f;
         float motorX = w * 0.50f;
         float wheelsX = w * 0.82f;
-        float upperY = h * 0.31f;
-        float lowerY = h * 0.62f;
+        float upperY = h * 0.27f;
+        float lowerY = h * 0.55f;
 
-        float nodeW = Math.min(w * 0.18f, dp(190));
-        float nodeH = Math.min(h * 0.25f, dp(150));
+        float nodeW = Math.min(w * 0.18f, dp(170));
+        float nodeH = Math.min(h * 0.21f, dp(128));
 
         RectF battery = centeredRect(batteryX, lowerY, nodeW, nodeH);
         RectF engine = centeredRect(engineX, upperY, nodeW, nodeH);
@@ -249,7 +249,7 @@ public final class PowerFlowView extends View {
         canvas.drawLine(cx + r, cy, cx + r * 1.7f, cy, paint);
         canvas.drawLine(cx, cy - r * 1.7f, cx, cy - r, paint);
 
-        drawNodeLabel(canvas, rect, "ENGINE / GENERATOR",
+        drawNodeLabel(canvas, rect, "ENGINE",
                 engineOn ? "ON" : "OFF",
                 accent);
     }
@@ -306,57 +306,80 @@ public final class PowerFlowView extends View {
                 android.graphics.Typeface.BOLD));
 
         paint.setColor(COLOR_MUTED);
-        paint.setTextSize(dp(11));
-        canvas.drawText(title, rect.centerX(), rect.bottom - dp(28), paint);
+        paint.setTextSize(dp(9));
+        canvas.drawText(title, rect.centerX(), rect.bottom - dp(23), paint);
 
         paint.setColor(accent);
-        paint.setTextSize(dp(15));
-        canvas.drawText(value, rect.centerX(), rect.bottom - dp(10), paint);
+        paint.setTextSize(dp(12));
+        canvas.drawText(value, rect.centerX(), rect.bottom - dp(7), paint);
 
         paint.setTextAlign(Paint.Align.LEFT);
     }
 
     private void drawMetrics(Canvas canvas, float w, float h) {
-        float top = h - dp(92);
-        float left = dp(22);
-        float gap = w * 0.22f;
+        float top = h - dp(80);
+        float margin = dp(18);
+        float gap = dp(10);
+        float columnWidth = (w - margin * 2f - gap * 3f) / 4f;
 
-        drawMetric(canvas, left, top,
+        drawMetric(canvas, margin, top, columnWidth,
                 "ELECTRIC RANGE",
                 String.format(Locale.US, "%d mi", state.electricRangeMiles),
                 COLOR_GREEN);
 
-        drawMetric(canvas, left + gap, top,
+        drawMetric(canvas, margin + (columnWidth + gap), top, columnWidth,
                 "EFFICIENCY",
                 String.format(Locale.US, "%.1f mi/kWh", state.efficiencyMiPerKwh),
                 COLOR_CYAN);
 
-        drawMetric(canvas, left + gap * 2f, top,
+        drawMetric(canvas, margin + (columnWidth + gap) * 2f, top, columnWidth,
                 "TOTAL RANGE",
                 String.format(Locale.US, "%d mi", state.totalRangeMiles),
                 COLOR_TEXT);
 
-        drawMetric(canvas, left + gap * 3f, top,
+        drawMetric(canvas, margin + (columnWidth + gap) * 3f, top, columnWidth,
                 "CHARGE MODE",
-                state.chargeMode,
+                shortChargeMode(state.chargeMode),
                 COLOR_TEXT);
     }
 
     private void drawMetric(Canvas canvas,
-                            float x, float y,
+                            float x, float y, float width,
                             String label, String value,
                             int valueColor) {
+        paint.setTextAlign(Paint.Align.LEFT);
         paint.setTypeface(android.graphics.Typeface.create(
                 android.graphics.Typeface.SANS_SERIF,
                 android.graphics.Typeface.BOLD));
 
         paint.setColor(COLOR_MUTED);
-        paint.setTextSize(dp(11));
+        paint.setTextSize(dp(9));
         canvas.drawText(label, x, y, paint);
 
         paint.setColor(valueColor);
-        paint.setTextSize(dp(20));
-        canvas.drawText(value, x, y + dp(28), paint);
+        float textSize = dp(17);
+        paint.setTextSize(textSize);
+
+        while (paint.measureText(value) > width && textSize > dp(11)) {
+            textSize -= dp(1);
+            paint.setTextSize(textSize);
+        }
+
+        canvas.drawText(value, x, y + dp(25), paint);
+    }
+
+    private String shortChargeMode(String chargeMode) {
+        if (chargeMode == null) {
+            return "";
+        }
+        String normalized = chargeMode.trim().toUpperCase(Locale.US);
+        if ("IMMEDIATELY".equals(normalized)) {
+            return "IMMEDIATE";
+        }
+        if ("DEPARTURE".equals(normalized)) {
+            return "DEPARTURE";
+        }
+        return normalized;
     }
 
     private float dp(float value) {
