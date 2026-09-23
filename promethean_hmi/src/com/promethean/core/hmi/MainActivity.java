@@ -41,6 +41,8 @@ public final class MainActivity extends Activity {
     private PowerFlowView powerFlowView;
     private LinearLayout chargingContent;
     private ChargingView chargingView;
+    private LinearLayout climateContent;
+    private ClimateView climateView;
     private View topBar;
     private View sideNav;
     private View centerPanel;
@@ -107,6 +109,8 @@ public final class MainActivity extends Activity {
         powerFlowView = findViewById(R.id.power_flow_view);
         chargingContent = findViewById(R.id.charging_content);
         chargingView = findViewById(R.id.charging_view);
+        climateContent = findViewById(R.id.climate_content);
+        climateView = findViewById(R.id.climate_view);
         topBar = findViewById(R.id.top_bar);
         sideNav = findViewById(R.id.side_nav);
         centerPanel = findViewById(R.id.center_panel);
@@ -154,10 +158,15 @@ public final class MainActivity extends Activity {
             showCharging();
             return;
         }
+        if ("CLIMATE".equals(section)) {
+            showClimate();
+            return;
+        }
         showCategoryChrome();
         homeGrid.setVisibility(View.GONE);
         energyContent.setVisibility(View.GONE);
         chargingContent.setVisibility(View.GONE);
+        climateContent.setVisibility(View.GONE);
         screenTitle.setText(section);
         switch (section) {
             case "CHARGING":
@@ -200,6 +209,7 @@ public final class MainActivity extends Activity {
         homeGrid.setVisibility(View.VISIBLE);
         energyContent.setVisibility(View.GONE);
         chargingContent.setVisibility(View.GONE);
+        climateContent.setVisibility(View.GONE);
 
         LinearLayout.LayoutParams params =
                 (LinearLayout.LayoutParams) centerPanel.getLayoutParams();
@@ -212,6 +222,7 @@ public final class MainActivity extends Activity {
         homeGrid.setVisibility(View.GONE);
         energyContent.setVisibility(View.VISIBLE);
         chargingContent.setVisibility(View.GONE);
+        climateContent.setVisibility(View.GONE);
         screenTitle.setText("POWER FLOW");
         screenSubtitle.setText("Electric Drive");
     }
@@ -221,8 +232,29 @@ public final class MainActivity extends Activity {
         homeGrid.setVisibility(View.GONE);
         energyContent.setVisibility(View.GONE);
         chargingContent.setVisibility(View.VISIBLE);
+        climateContent.setVisibility(View.GONE);
         screenTitle.setText("CHARGING");
         screenSubtitle.setText("Charge Status");
+    }
+
+    private void showClimate() {
+        showCategoryChrome();
+        homeGrid.setVisibility(View.GONE);
+        energyContent.setVisibility(View.GONE);
+        chargingContent.setVisibility(View.GONE);
+        climateContent.setVisibility(View.VISIBLE);
+        screenTitle.setText("CLIMATE");
+        screenSubtitle.setText("Touch + Rotary Controls");
+    }
+
+    // Hardware rotary integration hooks. PCG/Core input service can call these
+    // without maintaining a second climate state.
+    public void onTemperatureRotaryDelta(int detents) {
+        climateView.applyTemperatureRotaryDelta(detents);
+    }
+
+    public void onFanRotaryDelta(int detents) {
+        climateView.applyFanRotaryDelta(detents);
     }
 
     private void showCategoryChrome() {
