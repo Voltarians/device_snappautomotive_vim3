@@ -6,7 +6,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;\nimport android.widget.GridLayout;\nimport android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.GridLayout;
+import android.widget.LinearLayout;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -35,7 +37,9 @@ public final class MainActivity extends Activity {
     private TextView chargingTile;
     private TextView tripTile;
     private TextView climateTile;
-    private TextView audioTile;\n    private GridLayout homeGrid;\n    private LinearLayout energyContent;
+    private TextView audioTile;
+    private GridLayout homeGrid;
+    private LinearLayout energyContent;
 
     private final Runnable refresh = new Runnable() {
         @Override
@@ -93,7 +97,9 @@ public final class MainActivity extends Activity {
         chargingTile = findViewById(R.id.charging_tile_value);
         tripTile = findViewById(R.id.trip_tile_value);
         climateTile = findViewById(R.id.climate_tile_value);
-        audioTile = findViewById(R.id.audio_tile_value);\n        homeGrid = findViewById(R.id.home_grid);\n        energyContent = findViewById(R.id.energy_content);
+        audioTile = findViewById(R.id.audio_tile_value);
+        homeGrid = findViewById(R.id.home_grid);
+        energyContent = findViewById(R.id.energy_content);
     }
 
     private void bindNavigation() {
