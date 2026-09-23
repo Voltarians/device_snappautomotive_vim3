@@ -40,6 +40,7 @@ public final class MainActivity extends Activity {
     private TextView audioTile;
     private GridLayout homeGrid;
     private LinearLayout energyContent;
+    private PowerFlowView powerFlowView;
     private View topBar;
     private View sideNav;
     private View centerPanel;
@@ -105,6 +106,7 @@ public final class MainActivity extends Activity {
         audioTile = findViewById(R.id.audio_tile_value);
         homeGrid = findViewById(R.id.home_grid);
         energyContent = findViewById(R.id.energy_content);
+        powerFlowView = findViewById(R.id.power_flow_view);
         topBar = findViewById(R.id.top_bar);
         sideNav = findViewById(R.id.side_nav);
         centerPanel = findViewById(R.id.center_panel);
@@ -239,6 +241,7 @@ public final class MainActivity extends Activity {
         tripTile.setText(state.tripSummary);
         climateTile.setText(state.climateSummary);
         audioTile.setText(state.audioSummary);
+        powerFlowView.setVehicleState(state);
     }
 
     @SuppressWarnings("deprecation")
