@@ -47,6 +47,8 @@ public final class MainActivity extends Activity {
     private RadioView radioView;
     private LinearLayout vehicleContent;
     private VehicleView vehicleView;
+    private LinearLayout phoneContent;
+    private PhoneView phoneView;
     private View topBar;
     private View sideNav;
     private View centerPanel;
@@ -119,6 +121,8 @@ public final class MainActivity extends Activity {
         radioView = findViewById(R.id.radio_view);
         vehicleContent = findViewById(R.id.vehicle_content);
         vehicleView = findViewById(R.id.vehicle_view);
+        phoneContent = findViewById(R.id.phone_content);
+        phoneView = findViewById(R.id.phone_view);
         topBar = findViewById(R.id.top_bar);
         sideNav = findViewById(R.id.side_nav);
         centerPanel = findViewById(R.id.center_panel);
@@ -178,6 +182,10 @@ public final class MainActivity extends Activity {
             showVehicle();
             return;
         }
+        if ("PHONE".equals(section)) {
+            showPhone();
+            return;
+        }
         showCategoryChrome();
         homeGrid.setVisibility(View.GONE);
         energyContent.setVisibility(View.GONE);
@@ -185,6 +193,7 @@ public final class MainActivity extends Activity {
         climateContent.setVisibility(View.GONE);
         radioContent.setVisibility(View.GONE);
         vehicleContent.setVisibility(View.GONE);
+        phoneContent.setVisibility(View.GONE);
         screenTitle.setText(section);
         switch (section) {
             case "CHARGING":
@@ -230,6 +239,7 @@ public final class MainActivity extends Activity {
         climateContent.setVisibility(View.GONE);
         radioContent.setVisibility(View.GONE);
         vehicleContent.setVisibility(View.GONE);
+        phoneContent.setVisibility(View.GONE);
 
         LinearLayout.LayoutParams params =
                 (LinearLayout.LayoutParams) centerPanel.getLayoutParams();
@@ -245,6 +255,7 @@ public final class MainActivity extends Activity {
         climateContent.setVisibility(View.GONE);
         radioContent.setVisibility(View.GONE);
         vehicleContent.setVisibility(View.GONE);
+        phoneContent.setVisibility(View.GONE);
         screenTitle.setText("POWER FLOW");
         screenSubtitle.setText("Electric Drive");
     }
@@ -257,6 +268,7 @@ public final class MainActivity extends Activity {
         climateContent.setVisibility(View.GONE);
         radioContent.setVisibility(View.GONE);
         vehicleContent.setVisibility(View.GONE);
+        phoneContent.setVisibility(View.GONE);
         screenTitle.setText("CHARGING");
         screenSubtitle.setText("Charge Status");
     }
@@ -269,6 +281,7 @@ public final class MainActivity extends Activity {
         climateContent.setVisibility(View.VISIBLE);
         radioContent.setVisibility(View.GONE);
         vehicleContent.setVisibility(View.GONE);
+        phoneContent.setVisibility(View.GONE);
         screenTitle.setText("CLIMATE");
         screenSubtitle.setText("Touch + Rotary Controls");
     }
@@ -291,6 +304,7 @@ public final class MainActivity extends Activity {
         climateContent.setVisibility(View.GONE);
         radioContent.setVisibility(View.VISIBLE);
         vehicleContent.setVisibility(View.GONE);
+        phoneContent.setVisibility(View.GONE);
         screenTitle.setText("RADIO");
         screenSubtitle.setText("Touch + Rotary Audio Controls");
     }
@@ -315,8 +329,22 @@ public final class MainActivity extends Activity {
         climateContent.setVisibility(View.GONE);
         radioContent.setVisibility(View.GONE);
         vehicleContent.setVisibility(View.VISIBLE);
+        phoneContent.setVisibility(View.GONE);
         screenTitle.setText("VEHICLE");
         screenSubtitle.setText("Volt Status + Diagnostics");
+    }
+
+    private void showPhone() {
+        showCategoryChrome();
+        homeGrid.setVisibility(View.GONE);
+        energyContent.setVisibility(View.GONE);
+        chargingContent.setVisibility(View.GONE);
+        climateContent.setVisibility(View.GONE);
+        radioContent.setVisibility(View.GONE);
+        vehicleContent.setVisibility(View.GONE);
+        phoneContent.setVisibility(View.VISIBLE);
+        screenTitle.setText("PHONE");
+        screenSubtitle.setText("Bluetooth + Calling");
     }
 
     private void showCategoryChrome() {
