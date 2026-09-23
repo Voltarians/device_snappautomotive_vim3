@@ -39,6 +39,8 @@ public final class MainActivity extends Activity {
     private GridLayout homeGrid;
     private LinearLayout energyContent;
     private PowerFlowView powerFlowView;
+    private LinearLayout chargingContent;
+    private ChargingView chargingView;
     private View topBar;
     private View sideNav;
     private View centerPanel;
@@ -103,6 +105,8 @@ public final class MainActivity extends Activity {
         homeGrid = findViewById(R.id.home_grid);
         energyContent = findViewById(R.id.energy_content);
         powerFlowView = findViewById(R.id.power_flow_view);
+        chargingContent = findViewById(R.id.charging_content);
+        chargingView = findViewById(R.id.charging_view);
         topBar = findViewById(R.id.top_bar);
         sideNav = findViewById(R.id.side_nav);
         centerPanel = findViewById(R.id.center_panel);
@@ -146,9 +150,14 @@ public final class MainActivity extends Activity {
             showEnergy();
             return;
         }
+        if ("CHARGING".equals(section)) {
+            showCharging();
+            return;
+        }
         showCategoryChrome();
         homeGrid.setVisibility(View.GONE);
         energyContent.setVisibility(View.GONE);
+        chargingContent.setVisibility(View.GONE);
         screenTitle.setText(section);
         switch (section) {
             case "CHARGING":
@@ -190,6 +199,7 @@ public final class MainActivity extends Activity {
         screenSubtitle.setVisibility(View.GONE);
         homeGrid.setVisibility(View.VISIBLE);
         energyContent.setVisibility(View.GONE);
+        chargingContent.setVisibility(View.GONE);
 
         LinearLayout.LayoutParams params =
                 (LinearLayout.LayoutParams) centerPanel.getLayoutParams();
@@ -201,8 +211,18 @@ public final class MainActivity extends Activity {
         showCategoryChrome();
         homeGrid.setVisibility(View.GONE);
         energyContent.setVisibility(View.VISIBLE);
+        chargingContent.setVisibility(View.GONE);
         screenTitle.setText("POWER FLOW");
         screenSubtitle.setText("Electric Drive");
+    }
+
+    private void showCharging() {
+        showCategoryChrome();
+        homeGrid.setVisibility(View.GONE);
+        energyContent.setVisibility(View.GONE);
+        chargingContent.setVisibility(View.VISIBLE);
+        screenTitle.setText("CHARGING");
+        screenSubtitle.setText("Charge Status");
     }
 
     private void showCategoryChrome() {
@@ -236,6 +256,7 @@ public final class MainActivity extends Activity {
         climateTile.setText(state.climateSummary);
         audioTile.setText(state.audioSummary);
         powerFlowView.setVehicleState(state);
+        chargingView.setVehicleState(state);
     }
 
     @SuppressWarnings("deprecation")
