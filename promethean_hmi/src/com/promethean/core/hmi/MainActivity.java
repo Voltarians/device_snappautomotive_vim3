@@ -21,16 +21,21 @@ public final class MainActivity extends Activity {
     private final VehicleDataSource vehicleDataSource = new DemoVehicleDataSource();
 
     private TextView clock;
-    private TextView speed;
-    private TextView gear;
-    private TextView battery;
-    private TextView range;
-    private TextView power;
-    private TextView propulsion;
     private TextView vehicle;
     private TextView connection;
-    private TextView sectionTitle;
-    private TextView sectionBody;
+    private TextView screenTitle;
+    private TextView screenSubtitle;
+    private TextView battery;
+    private TextView evRange;
+    private TextView fuelRange;
+    private TextView totalRange;
+    private TextView efficiency;
+    private TextView mpg;
+    private TextView propulsion;
+    private TextView chargingTile;
+    private TextView tripTile;
+    private TextView climateTile;
+    private TextView audioTile;
 
     private final Runnable refresh = new Runnable() {
         @Override
@@ -48,7 +53,7 @@ public final class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         bindViews();
         bindNavigation();
-        selectSection("ENERGY");
+        showHome();
     }
 
     @Override
@@ -74,24 +79,33 @@ public final class MainActivity extends Activity {
 
     private void bindViews() {
         clock = findViewById(R.id.clock);
-        speed = findViewById(R.id.speed_value);
-        gear = findViewById(R.id.gear_value);
-        battery = findViewById(R.id.battery_value);
-        range = findViewById(R.id.range_value);
-        power = findViewById(R.id.power_value);
-        propulsion = findViewById(R.id.propulsion_value);
         vehicle = findViewById(R.id.vehicle_label);
         connection = findViewById(R.id.connection_state);
-        sectionTitle = findViewById(R.id.section_title);
-        sectionBody = findViewById(R.id.section_body);
+        screenTitle = findViewById(R.id.screen_title);
+        screenSubtitle = findViewById(R.id.screen_subtitle);
+        battery = findViewById(R.id.battery_value);
+        evRange = findViewById(R.id.ev_range_value);
+        fuelRange = findViewById(R.id.fuel_range_value);
+        totalRange = findViewById(R.id.total_range_value);
+        efficiency = findViewById(R.id.efficiency_value);
+        mpg = findViewById(R.id.mpg_value);
+        propulsion = findViewById(R.id.propulsion_value);
+        chargingTile = findViewById(R.id.charging_tile_value);
+        tripTile = findViewById(R.id.trip_tile_value);
+        climateTile = findViewById(R.id.climate_tile_value);
+        audioTile = findViewById(R.id.audio_tile_value);
     }
 
     private void bindNavigation() {
+        bindButton(R.id.nav_home, "HOME");
         bindButton(R.id.nav_energy, "ENERGY");
-        bindButton(R.id.nav_climate, "CLIMATE");
+        bindButton(R.id.nav_charging, "CHARGING");
         bindButton(R.id.nav_audio, "AUDIO");
+        bindButton(R.id.nav_phone, "PHONE");
+        bindButton(R.id.nav_nav, "NAV");
         bindButton(R.id.nav_vehicle, "VEHICLE");
-        bindButton(R.id.nav_apps, "APPS");
+        bindButton(R.id.nav_climate, "CLIMATE");
+        bindButton(R.id.nav_settings, "SETTINGS");
     }
 
     private void bindButton(int id, String section) {
@@ -100,36 +114,58 @@ public final class MainActivity extends Activity {
     }
 
     private void selectSection(String section) {
-        sectionTitle.setText(section);
+        if ("HOME".equals(section) || "ENERGY".equals(section)) {
+            showHome();
+            return;
+        }
+        screenTitle.setText(section);
         switch (section) {
-            case "CLIMATE":
-                sectionBody.setText("Climate foundation ready • physical rotary controls will map here");
+            case "CHARGING":
+                screenSubtitle.setText("Charging controls and schedule foundation");
                 break;
             case "AUDIO":
-                sectionBody.setText("Audio foundation ready • source, DSP and balance/fade integration");
+                screenSubtitle.setText("Audio source, DSP, balance and fade foundation");
+                break;
+            case "PHONE":
+                screenSubtitle.setText("Phone and communications foundation");
+                break;
+            case "NAV":
+                screenSubtitle.setText("Navigation foundation");
                 break;
             case "VEHICLE":
-                sectionBody.setText("Vehicle foundation ready • Gen-1 and Gen-2 state normalization");
+                screenSubtitle.setText("Vehicle settings and status foundation");
                 break;
-            case "APPS":
-                sectionBody.setText("AAOS application surface • launcher integration follows acceptance");
+            case "CLIMATE":
+                screenSubtitle.setText("Climate controls and physical rotary integration");
                 break;
-            case "ENERGY":
+            case "SETTINGS":
+                screenSubtitle.setText("Promethean Core system settings");
+                break;
             default:
-                sectionBody.setText("Electric drive overview • canonical vehicle-state service next");
+                screenSubtitle.setText("");
                 break;
         }
     }
 
+    private void showHome() {
+        screenTitle.setText("POWER FLOW");
+        screenSubtitle.setText("Electric Drive");
+    }
+
     private void render(VehicleState state) {
-        speed.setText(String.format(Locale.US, "%.0f", state.speedMph));
-        gear.setText(state.gear);
-        battery.setText(String.format(Locale.US, "%d%%", state.batteryPercent));
-        range.setText(String.format(Locale.US, "%d mi", state.electricRangeMiles));
-        power.setText(String.format(Locale.US, "%.1f kW", state.tractionPowerKw));
-        propulsion.setText(state.propulsionMode);
         vehicle.setText(state.vehicleLabel);
         connection.setText(state.connectionState);
+        battery.setText(String.format(Locale.US, "%d%%", state.batteryPercent));
+        evRange.setText(String.format(Locale.US, "%d mi", state.electricRangeMiles));
+        fuelRange.setText(String.format(Locale.US, "%d mi", state.fuelRangeMiles));
+        totalRange.setText(String.format(Locale.US, "%d mi", state.totalRangeMiles));
+        efficiency.setText(String.format(Locale.US, "%.1f mi/kWh", state.efficiencyMiPerKwh));
+        mpg.setText(String.format(Locale.US, "%.1f mpg", state.fuelEconomyMpg));
+        propulsion.setText(state.propulsionMode);
+        chargingTile.setText("Charge Mode: " + state.chargeMode);
+        tripTile.setText(state.tripSummary);
+        climateTile.setText(state.climateSummary);
+        audioTile.setText(state.audioSummary);
     }
 
     @SuppressWarnings("deprecation")
