@@ -162,6 +162,10 @@ PRODUCT_SYSTEM_PROPERTIES += \
     persist.adb.tcp.port=5555
 endif
 
+# Promethean Core HMI foundation
+PRODUCT_PACKAGES += \
+    PrometheanCoreHMI
+
 PRODUCT_NAME := snapp_car_vim3
 PRODUCT_CHARACTERISTICS := automotive
 ifeq ($(SNAPP_MODEL),)
