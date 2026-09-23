@@ -150,6 +150,20 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
             </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/charging_content"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <com.promethean.core.hmi.ChargingView
+                    android:id="@+id/charging_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
