@@ -72,8 +72,6 @@ public final class PowerFlowView extends View {
             phase -= 1f;
         }
 
-        drawHeader(canvas, w, h);
-
         float batteryX = w * 0.16f;
         float engineX = w * 0.48f;
         float motorX = w * 0.50f;
@@ -133,24 +131,6 @@ public final class PowerFlowView extends View {
         drawMetrics(canvas, w, h);
 
         postInvalidateDelayed(45);
-    }
-
-    private void drawHeader(Canvas canvas, float w, float h) {
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(COLOR_TEXT);
-        paint.setTextSize(Math.min(dp(30), h * 0.065f));
-        paint.setTypeface(android.graphics.Typeface.create(
-                android.graphics.Typeface.SANS_SERIF,
-                android.graphics.Typeface.BOLD));
-        canvas.drawText("POWER FLOW", dp(22), dp(42), paint);
-
-        paint.setColor(COLOR_CYAN);
-        paint.setTextSize(Math.min(dp(17), h * 0.04f));
-        canvas.drawText(state.propulsionMode, dp(22), dp(68), paint);
-
-        paint.setTypeface(android.graphics.Typeface.create(
-                android.graphics.Typeface.SANS_SERIF,
-                android.graphics.Typeface.NORMAL));
     }
 
     private RectF centeredRect(float cx, float cy, float width, float height) {
