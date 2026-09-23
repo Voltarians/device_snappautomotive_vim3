@@ -1,6 +1,10 @@
 TARGET_VIM3 := true
 TARGET_USE_TABLET_LAUNCHER := true
 
+# Promethean Wi-Fi regulatory domain. Override at build time for deployment
+# outside the United States.
+PROMETHEAN_WIFI_COUNTRY_CODE ?= US
+
 BOARD_IS_AUTOMOTIVE := true
 PRODUCT_DISPLAY_DENSITY := 160
 
@@ -74,7 +78,6 @@ PRODUCT_COPY_FILES += \
 	device/generic/car/common/android.hardware.disable.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.flash-autofocus.xml \
 	device/generic/car/common/android.hardware.disable.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.raw.xml \
 	device/generic/car/common/android.hardware.disable.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.fingerprint.xml \
-	device/generic/car/common/android.hardware.disable.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.wifi.direct.xml \
 
 PRODUCT_PROPERTY_OVERRIDES += \
 	android.car.drawer.unlimited=true \
@@ -130,7 +133,7 @@ PRODUCT_COPY_FILES += \
     device/google_car/common/audio_effects.xml:$(TARGET_COPY_OUT_VENDOR)/etc/audio_effects.xml \
 
 PRODUCT_PROPERTY_OVERRIDES += \
-        ro.boot.wificountrycode=00 \
+        ro.boot.wificountrycode=$(PROMETHEAN_WIFI_COUNTRY_CODE) \
         ro.config.media_vol_default=0 \
         log.tag.CarTrustAgentUnlockEvent=I
 
@@ -152,7 +155,7 @@ PRODUCT_PACKAGES_DEBUG += \
 include packages/services/Car/car_product/occupant_awareness/OccupantAwareness.mk
 
 PRODUCT_PROPERTY_OVERRIDES += \
-        ro.boot.wificountrycode=00 \
+        ro.boot.wificountrycode=$(PROMETHEAN_WIFI_COUNTRY_CODE) \
         ro.config.media_vol_default=0 \
         log.tag.CarTrustAgentUnlockEvent=I
 
