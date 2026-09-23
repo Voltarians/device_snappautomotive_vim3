@@ -94,8 +94,8 @@ public final class PowerFlowView extends View {
                 motor.centerX() - nodeW / 2f, motor.centerY());
         drawBasePath(canvas, motor.centerX() + nodeW / 2f, motor.centerY(),
                 wheels.centerX() - nodeW / 2f, wheels.centerY());
-        drawBasePath(canvas, engine.centerX(), engine.bottom(),
-                motor.centerX(), motor.top());
+        drawBasePath(canvas, engine.centerX(), engine.bottom,
+                motor.centerX(), motor.top);
 
         if (regen) {
             drawAnimatedFlow(canvas,
@@ -117,8 +117,8 @@ public final class PowerFlowView extends View {
                     COLOR_CYAN);
             if (engineOn) {
                 drawAnimatedFlow(canvas,
-                        engine.centerX(), engine.bottom(),
-                        motor.centerX(), motor.top(),
+                        engine.centerX(), engine.bottom,
+                        motor.centerX(), motor.top,
                         COLOR_AMBER);
             }
         }
