@@ -100,11 +100,12 @@ public final class MainActivity extends Activity {
         bindButton(R.id.nav_home, "HOME");
         bindButton(R.id.nav_energy, "ENERGY");
         bindButton(R.id.nav_charging, "CHARGING");
-        bindButton(R.id.nav_audio, "AUDIO");
+        bindButton(R.id.nav_radio, "RADIO");
         bindButton(R.id.nav_phone, "PHONE");
         bindButton(R.id.nav_nav, "NAV");
         bindButton(R.id.nav_vehicle, "VEHICLE");
         bindButton(R.id.nav_climate, "CLIMATE");
+        bindButton(R.id.nav_apps, "APPS");
         bindButton(R.id.nav_settings, "SETTINGS");
     }
 
@@ -123,8 +124,8 @@ public final class MainActivity extends Activity {
             case "CHARGING":
                 screenSubtitle.setText("Charging controls and schedule foundation");
                 break;
-            case "AUDIO":
-                screenSubtitle.setText("Audio source, DSP, balance and fade foundation");
+            case "RADIO":
+                screenSubtitle.setText("Radio, media source, DSP, balance and fade foundation");
                 break;
             case "PHONE":
                 screenSubtitle.setText("Phone and communications foundation");
@@ -137,6 +138,9 @@ public final class MainActivity extends Activity {
                 break;
             case "CLIMATE":
                 screenSubtitle.setText("Climate controls and physical rotary integration");
+                break;
+            case "APPS":
+                screenSubtitle.setText("Applications and projection foundation");
                 break;
             case "SETTINGS":
                 screenSubtitle.setText("Promethean Core system settings");
