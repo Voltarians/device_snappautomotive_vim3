@@ -6,6 +6,7 @@
     android:background="@color/background">
 
     <LinearLayout
+        android:id="@+id/top_bar"
         android:layout_width="match_parent"
         android:layout_height="52dp"
         android:gravity="center_vertical"
@@ -59,6 +60,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/main_row"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -67,6 +69,7 @@
         android:paddingBottom="10dp">
 
         <LinearLayout
+            android:id="@+id/side_nav"
             android:layout_width="175dp"
             android:layout_height="match_parent"
             android:orientation="vertical">
@@ -84,6 +87,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/center_panel"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginStart="12dp"
@@ -244,6 +248,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/right_info_panel"
             android:layout_width="230dp"
             android:layout_height="match_parent"
             android:layout_marginStart="12dp"
@@ -269,6 +274,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/bottom_quick_bar"
         android:layout_width="match_parent"
         android:layout_height="92dp"
         android:orientation="horizontal">
