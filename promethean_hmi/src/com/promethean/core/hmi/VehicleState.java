@@ -1,30 +1,45 @@
 package com.promethean.core.hmi;
 
 final class VehicleState {
-    final float speedMph;
-    final String gear;
     final int batteryPercent;
     final int electricRangeMiles;
-    final float tractionPowerKw;
+    final int fuelRangeMiles;
+    final int totalRangeMiles;
+    final float efficiencyMiPerKwh;
+    final float fuelEconomyMpg;
     final String propulsionMode;
+    final String chargeMode;
+    final String climateSummary;
+    final String audioSummary;
+    final String tripSummary;
     final String vehicleLabel;
     final String connectionState;
 
     VehicleState(
-            float speedMph,
-            String gear,
             int batteryPercent,
             int electricRangeMiles,
-            float tractionPowerKw,
+            int fuelRangeMiles,
+            int totalRangeMiles,
+            float efficiencyMiPerKwh,
+            float fuelEconomyMpg,
             String propulsionMode,
+            String chargeMode,
+            String climateSummary,
+            String audioSummary,
+            String tripSummary,
             String vehicleLabel,
             String connectionState) {
-        this.speedMph = speedMph;
-        this.gear = gear;
         this.batteryPercent = batteryPercent;
         this.electricRangeMiles = electricRangeMiles;
-        this.tractionPowerKw = tractionPowerKw;
+        this.fuelRangeMiles = fuelRangeMiles;
+        this.totalRangeMiles = totalRangeMiles;
+        this.efficiencyMiPerKwh = efficiencyMiPerKwh;
+        this.fuelEconomyMpg = fuelEconomyMpg;
         this.propulsionMode = propulsionMode;
+        this.chargeMode = chargeMode;
+        this.climateSummary = climateSummary;
+        this.audioSummary = audioSummary;
+        this.tripSummary = tripSummary;
         this.vehicleLabel = vehicleLabel;
         this.connectionState = connectionState;
     }
