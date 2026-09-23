@@ -27,13 +27,11 @@ public final class MainActivity extends Activity {
     private TextView connection;
     private TextView screenTitle;
     private TextView screenSubtitle;
-    private TextView battery;
     private TextView evRange;
     private TextView fuelRange;
     private TextView totalRange;
     private TextView efficiency;
     private TextView mpg;
-    private TextView propulsion;
     private TextView chargingTile;
     private TextView tripTile;
     private TextView climateTile;
@@ -93,13 +91,11 @@ public final class MainActivity extends Activity {
         connection = findViewById(R.id.connection_state);
         screenTitle = findViewById(R.id.screen_title);
         screenSubtitle = findViewById(R.id.screen_subtitle);
-        battery = findViewById(R.id.battery_value);
         evRange = findViewById(R.id.ev_range_value);
         fuelRange = findViewById(R.id.fuel_range_value);
         totalRange = findViewById(R.id.total_range_value);
         efficiency = findViewById(R.id.efficiency_value);
         mpg = findViewById(R.id.mpg_value);
-        propulsion = findViewById(R.id.propulsion_value);
         chargingTile = findViewById(R.id.charging_tile_value);
         tripTile = findViewById(R.id.trip_tile_value);
         climateTile = findViewById(R.id.climate_tile_value);
@@ -230,13 +226,11 @@ public final class MainActivity extends Activity {
     private void render(VehicleState state) {
         vehicle.setText(state.vehicleLabel);
         connection.setText(state.connectionState);
-        battery.setText(String.format(Locale.US, "%d%%", state.batteryPercent));
         evRange.setText(String.format(Locale.US, "%d mi", state.electricRangeMiles));
         fuelRange.setText(String.format(Locale.US, "%d mi", state.fuelRangeMiles));
         totalRange.setText(String.format(Locale.US, "%d mi", state.totalRangeMiles));
         efficiency.setText(String.format(Locale.US, "%.1f mi/kWh", state.efficiencyMiPerKwh));
         mpg.setText(String.format(Locale.US, "%.1f mpg", state.fuelEconomyMpg));
-        propulsion.setText(state.propulsionMode);
         chargingTile.setText("Charge Mode: " + state.chargeMode);
         tripTile.setText(state.tripSummary);
         climateTile.setText(state.climateSummary);
