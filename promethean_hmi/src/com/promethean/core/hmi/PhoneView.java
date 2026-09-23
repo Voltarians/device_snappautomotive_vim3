@@ -21,11 +21,11 @@ public final class PhoneView extends View {
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     private static final String[] TABS = {
-            "FAVORITES", "RECENTS", "CONTACTS", "KEYPAD"
+            "FAVORITES", "RECENTS", "CONTACTS", "MESSAGES", "KEYPAD"
     };
 
     private final RectF[] tabButtons = {
-            new RectF(), new RectF(), new RectF(), new RectF()
+            new RectF(), new RectF(), new RectF(), new RectF(), new RectF()
     };
 
     private final RectF pairButton = new RectF();
@@ -122,7 +122,7 @@ public final class PhoneView extends View {
         float tabGap = dp(8);
         float tabHeight = dp(52);
         float tabWidth =
-                (rect.width() - pad * 2f - tabGap * 3f) / 4f;
+                (rect.width() - pad * 2f - tabGap * 4f) / 5f;
 
         for (int i = 0; i < TABS.length; i++) {
             float left = rect.left + pad + i * (tabWidth + tabGap);
@@ -163,6 +163,11 @@ public final class PhoneView extends View {
                         "Phone contacts will appear after Bluetooth sync.");
                 break;
             case 3:
+                drawUnavailableList(canvas, rect,
+                        "MESSAGES",
+                        "Texts will appear after phone messaging sync.");
+                break;
+            case 4:
                 drawKeypad(canvas, rect);
                 break;
             default:
