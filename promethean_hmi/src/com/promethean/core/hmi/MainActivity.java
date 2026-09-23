@@ -43,6 +43,8 @@ public final class MainActivity extends Activity {
     private ChargingView chargingView;
     private LinearLayout climateContent;
     private ClimateView climateView;
+    private LinearLayout radioContent;
+    private RadioView radioView;
     private View topBar;
     private View sideNav;
     private View centerPanel;
@@ -111,6 +113,8 @@ public final class MainActivity extends Activity {
         chargingView = findViewById(R.id.charging_view);
         climateContent = findViewById(R.id.climate_content);
         climateView = findViewById(R.id.climate_view);
+        radioContent = findViewById(R.id.radio_content);
+        radioView = findViewById(R.id.radio_view);
         topBar = findViewById(R.id.top_bar);
         sideNav = findViewById(R.id.side_nav);
         centerPanel = findViewById(R.id.center_panel);
@@ -162,11 +166,16 @@ public final class MainActivity extends Activity {
             showClimate();
             return;
         }
+        if ("RADIO".equals(section)) {
+            showRadio();
+            return;
+        }
         showCategoryChrome();
         homeGrid.setVisibility(View.GONE);
         energyContent.setVisibility(View.GONE);
         chargingContent.setVisibility(View.GONE);
         climateContent.setVisibility(View.GONE);
+        radioContent.setVisibility(View.GONE);
         screenTitle.setText(section);
         switch (section) {
             case "CHARGING":
@@ -210,6 +219,7 @@ public final class MainActivity extends Activity {
         energyContent.setVisibility(View.GONE);
         chargingContent.setVisibility(View.GONE);
         climateContent.setVisibility(View.GONE);
+        radioContent.setVisibility(View.GONE);
 
         LinearLayout.LayoutParams params =
                 (LinearLayout.LayoutParams) centerPanel.getLayoutParams();
@@ -223,6 +233,7 @@ public final class MainActivity extends Activity {
         energyContent.setVisibility(View.VISIBLE);
         chargingContent.setVisibility(View.GONE);
         climateContent.setVisibility(View.GONE);
+        radioContent.setVisibility(View.GONE);
         screenTitle.setText("POWER FLOW");
         screenSubtitle.setText("Electric Drive");
     }
@@ -233,6 +244,7 @@ public final class MainActivity extends Activity {
         energyContent.setVisibility(View.GONE);
         chargingContent.setVisibility(View.VISIBLE);
         climateContent.setVisibility(View.GONE);
+        radioContent.setVisibility(View.GONE);
         screenTitle.setText("CHARGING");
         screenSubtitle.setText("Charge Status");
     }
@@ -243,6 +255,7 @@ public final class MainActivity extends Activity {
         energyContent.setVisibility(View.GONE);
         chargingContent.setVisibility(View.GONE);
         climateContent.setVisibility(View.VISIBLE);
+        radioContent.setVisibility(View.GONE);
         screenTitle.setText("CLIMATE");
         screenSubtitle.setText("Touch + Rotary Controls");
     }
@@ -255,6 +268,29 @@ public final class MainActivity extends Activity {
 
     public void onFanRotaryDelta(int detents) {
         climateView.applyFanRotaryDelta(detents);
+    }
+
+    private void showRadio() {
+        showCategoryChrome();
+        homeGrid.setVisibility(View.GONE);
+        energyContent.setVisibility(View.GONE);
+        chargingContent.setVisibility(View.GONE);
+        climateContent.setVisibility(View.GONE);
+        radioContent.setVisibility(View.VISIBLE);
+        screenTitle.setText("RADIO");
+        screenSubtitle.setText("Touch + Rotary Audio Controls");
+    }
+
+    public void onVolumeRotaryDelta(int detents) {
+        radioView.applyVolumeRotaryDelta(detents);
+    }
+
+    public void onTuneRotaryDelta(int detents) {
+        radioView.applyTuneRotaryDelta(detents);
+    }
+
+    public void onTuneRotaryPress() {
+        radioView.cycleTuneRotaryMode();
     }
 
     private void showCategoryChrome() {
