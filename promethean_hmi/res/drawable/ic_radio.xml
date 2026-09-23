@@ -1,0 +1,6 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp" android:height="48dp"
+    android:viewportWidth="48" android:viewportHeight="48">
+    <path android:fillColor="@color/volt_cyan"
+        android:pathData="M8,13 H40 C42.2,13 44,14.8 44,17 V37 C44,39.2 42.2,41 40,41 H8 C5.8,41 4,39.2 4,37 V17 C4,14.8 5.8,13 8,13 Z M10,9 L36,3 L37,7 L11,13 Z M12,21 C8.7,21 6,23.7 6,27 C6,30.3 8.7,33 12,33 C15.3,33 18,30.3 18,27 C18,23.7 15.3,21 12,21 Z M24,21 H39 V24 H24 Z M24,28 H36 V31 H24 Z M24,35 H32 V38 H24 Z"/>
+</vector>
