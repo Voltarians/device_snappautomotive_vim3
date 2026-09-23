@@ -67,19 +67,20 @@
         android:paddingBottom="10dp">
 
         <LinearLayout
-            android:layout_width="150dp"
+            android:layout_width="175dp"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <Button android:id="@+id/nav_home" style="@style/SidebarButton" android:text="HOME" />
-            <Button android:id="@+id/nav_energy" style="@style/SidebarButton" android:text="ENERGY" />
-            <Button android:id="@+id/nav_charging" style="@style/SidebarButton" android:text="CHARGING" />
-            <Button android:id="@+id/nav_audio" style="@style/SidebarButton" android:text="AUDIO" />
-            <Button android:id="@+id/nav_phone" style="@style/SidebarButton" android:text="PHONE" />
-            <Button android:id="@+id/nav_nav" style="@style/SidebarButton" android:text="NAV" />
-            <Button android:id="@+id/nav_vehicle" style="@style/SidebarButton" android:text="VEHICLE" />
-            <Button android:id="@+id/nav_climate" style="@style/SidebarButton" android:text="CLIMATE" />
-            <Button android:id="@+id/nav_settings" style="@style/SidebarButton" android:text="SETTINGS" />
+            <Button android:id="@+id/nav_home" style="@style/SidebarButton" android:drawableStart="@drawable/ic_home" android:text="HOME" />
+            <Button android:id="@+id/nav_energy" style="@style/SidebarButton" android:drawableStart="@drawable/ic_energy" android:text="ENERGY" />
+            <Button android:id="@+id/nav_charging" style="@style/SidebarButton" android:drawableStart="@drawable/ic_charging" android:text="CHARGING" />
+            <Button android:id="@+id/nav_radio" style="@style/SidebarButton" android:drawableStart="@drawable/ic_radio" android:text="RADIO" />
+            <Button android:id="@+id/nav_phone" style="@style/SidebarButton" android:drawableStart="@drawable/ic_phone" android:text="PHONE" />
+            <Button android:id="@+id/nav_nav" style="@style/SidebarButton" android:drawableStart="@drawable/ic_nav" android:text="NAV" />
+            <Button android:id="@+id/nav_vehicle" style="@style/SidebarButton" android:drawableStart="@drawable/ic_vehicle" android:text="VEHICLE" />
+            <Button android:id="@+id/nav_climate" style="@style/SidebarButton" android:drawableStart="@drawable/ic_climate" android:text="CLIMATE" />
+            <Button android:id="@+id/nav_apps" style="@style/SidebarButton" android:drawableStart="@drawable/ic_apps" android:text="APPS" />
+            <Button android:id="@+id/nav_settings" style="@style/SidebarButton" android:drawableStart="@drawable/ic_settings" android:text="SETTINGS" />
         </LinearLayout>
 
         <LinearLayout
@@ -271,7 +272,7 @@
         <Space android:layout_width="8dp" android:layout_height="1dp" />
 
         <LinearLayout style="@style/QuickTile" android:orientation="vertical">
-            <TextView style="@style/PanelTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="AUDIO" />
+            <TextView style="@style/PanelTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="RADIO" />
             <TextView android:id="@+id/audio_tile_value" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="XM1 Ch 2 • SiriusXM Preview" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
         </LinearLayout>
     </LinearLayout>
