@@ -76,7 +76,7 @@ public final class TwelveVoltView extends View {
         drawCard(canvas, bus,
                 "12 V BUS",
                 formatVoltage(state.auxBusVoltageV),
-                "Measured low-voltage bus",
+                "SAE PID 0142 module median",
                 state.pcgConnected ? COLOR_GREEN : COLOR_MUTED);
 
         drawCard(canvas, voltage,
