@@ -15,6 +15,14 @@ final class VehicleState {
     final String vehicleLabel;
     final String connectionState;
 
+    final boolean pcgConnected;
+    final float auxBusVoltageV;
+    final float apmOutputVoltageV;
+    final float apmCurrentA;
+    final float apmPowerW;
+    final String apmState;
+    final long pcgDataAgeMs;
+
     VehicleState(
             int batteryPercent,
             int electricRangeMiles,
@@ -28,7 +36,14 @@ final class VehicleState {
             String audioSummary,
             String tripSummary,
             String vehicleLabel,
-            String connectionState) {
+            String connectionState,
+            boolean pcgConnected,
+            float auxBusVoltageV,
+            float apmOutputVoltageV,
+            float apmCurrentA,
+            float apmPowerW,
+            String apmState,
+            long pcgDataAgeMs) {
         this.batteryPercent = batteryPercent;
         this.electricRangeMiles = electricRangeMiles;
         this.fuelRangeMiles = fuelRangeMiles;
@@ -42,5 +57,12 @@ final class VehicleState {
         this.tripSummary = tripSummary;
         this.vehicleLabel = vehicleLabel;
         this.connectionState = connectionState;
+        this.pcgConnected = pcgConnected;
+        this.auxBusVoltageV = auxBusVoltageV;
+        this.apmOutputVoltageV = apmOutputVoltageV;
+        this.apmCurrentA = apmCurrentA;
+        this.apmPowerW = apmPowerW;
+        this.apmState = apmState;
+        this.pcgDataAgeMs = pcgDataAgeMs;
     }
 }
