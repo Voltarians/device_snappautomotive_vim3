@@ -20,7 +20,14 @@ final class DemoVehicleDataSource implements VehicleDataSource {
                 "XM1 Ch 2 • SiriusXM Preview",
                 "6.1 mi • 8.0 mi • 0.30 gal",
                 "VOLT",
-                "DEMO DATA • VEHICLE BUS NOT CONNECTED");
+                "DEMO DATA • VEHICLE BUS NOT CONNECTED",
+                false,
+                Float.NaN,
+                Float.NaN,
+                Float.NaN,
+                Float.NaN,
+                "UNKNOWN",
+                -1L);
     }
 
     @Override
