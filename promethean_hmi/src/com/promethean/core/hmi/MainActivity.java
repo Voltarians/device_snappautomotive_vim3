@@ -20,7 +20,7 @@ public final class MainActivity extends Activity {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final SimpleDateFormat clockFormat =
             new SimpleDateFormat("h:mm", Locale.getDefault());
-    private final VehicleDataSource vehicleDataSource = new DemoVehicleDataSource();
+    private final PcgGatewayDataSource vehicleDataSource = new PcgGatewayDataSource();
 
     private TextView clock;
     private TextView vehicle;
@@ -47,6 +47,8 @@ public final class MainActivity extends Activity {
     private RadioView radioView;
     private LinearLayout vehicleContent;
     private VehicleView vehicleView;
+    private LinearLayout twelveVoltContent;
+    private TwelveVoltView twelveVoltView;
     private LinearLayout phoneContent;
     private PhoneView phoneView;
     private LinearLayout navContent;
@@ -127,6 +129,8 @@ public final class MainActivity extends Activity {
         radioView = findViewById(R.id.radio_view);
         vehicleContent = findViewById(R.id.vehicle_content);
         vehicleView = findViewById(R.id.vehicle_view);
+        twelveVoltContent = findViewById(R.id.twelve_volt_content);
+        twelveVoltView = findViewById(R.id.twelve_volt_view);
         phoneContent = findViewById(R.id.phone_content);
         phoneView = findViewById(R.id.phone_view);
         navContent = findViewById(R.id.nav_content);
@@ -162,6 +166,7 @@ public final class MainActivity extends Activity {
         bindButton(R.id.home_tile_vehicle, "VEHICLE");
         bindButton(R.id.home_tile_charging, "CHARGING");
         bindButton(R.id.home_tile_settings, "SETTINGS");
+        vehicleView.setOnTwelveVoltSelectedListener(this::showTwelveVolt);
     }
 
     private void bindButton(int id, String section) {
@@ -266,6 +271,7 @@ public final class MainActivity extends Activity {
         climateContent.setVisibility(View.GONE);
         radioContent.setVisibility(View.GONE);
         vehicleContent.setVisibility(View.GONE);
+        twelveVoltContent.setVisibility(View.GONE);
         phoneContent.setVisibility(View.GONE);
         navContent.setVisibility(View.GONE);
         appsContent.setVisibility(View.GONE);
@@ -379,6 +385,14 @@ public final class MainActivity extends Activity {
         screenSubtitle.setText("Volt Status + Diagnostics");
     }
 
+    private void showTwelveVolt() {
+        showVehicle();
+        vehicleContent.setVisibility(View.GONE);
+        twelveVoltContent.setVisibility(View.VISIBLE);
+        screenTitle.setText("12 V POWER");
+        screenSubtitle.setText("PCG-1 • Accessory Power Module");
+    }
+
     private void showPhone() {
         showCategoryChrome();
         homeGrid.setVisibility(View.GONE);
@@ -444,6 +458,7 @@ public final class MainActivity extends Activity {
     }
 
     private void showCategoryChrome() {
+        twelveVoltContent.setVisibility(View.GONE);
         topBar.setVisibility(View.VISIBLE);
         sideNav.setVisibility(View.VISIBLE);
         rightInfoPanel.setVisibility(View.GONE);
@@ -476,6 +491,13 @@ public final class MainActivity extends Activity {
         powerFlowView.setVehicleState(state);
         chargingView.setVehicleState(state);
         vehicleView.setVehicleState(state);
+        twelveVoltView.setVehicleState(state);
+    }
+
+    @Override
+    protected void onDestroy() {
+        vehicleDataSource.close();
+        super.onDestroy();
     }
 
     @SuppressWarnings("deprecation")
