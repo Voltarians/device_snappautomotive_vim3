@@ -169,6 +169,10 @@ endif
 PRODUCT_PACKAGES += \
     PrometheanCoreHMI
 
+# Development Wi-Fi peer pinning for PCG-1.
+PRODUCT_COPY_FILES += \
+    device/snappautomotive/vim3/init.promethean_pcg1_wifi.rc:$(TARGET_COPY_OUT_SYSTEM)/etc/init/init.promethean_pcg1_wifi.rc
+
 PRODUCT_NAME := snapp_car_vim3
 PRODUCT_CHARACTERISTICS := automotive
 ifeq ($(SNAPP_MODEL),)
