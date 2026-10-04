@@ -319,9 +319,35 @@ public final class PowerFlowView extends View {
 
     private void drawMetrics(Canvas canvas, float w, float h) {
         float top = h - dp(80);
+        float liveTop = top - dp(52);
         float margin = dp(18);
         float gap = dp(10);
         float columnWidth = (w - margin * 2f - gap * 4f) / 5f;
+
+        drawMetric(canvas, margin, liveTop, columnWidth,
+                "HV PACK",
+                formatVoltage(state.hvPackVoltageV),
+                Float.isNaN(state.hvPackVoltageV) ? COLOR_MUTED : COLOR_CYAN);
+
+        drawMetric(canvas, margin + (columnWidth + gap), liveTop, columnWidth,
+                "CELL MIN",
+                formatCellVoltage(state.hvCellMinV),
+                Float.isNaN(state.hvCellMinV) ? COLOR_MUTED : COLOR_AMBER);
+
+        drawMetric(canvas, margin + (columnWidth + gap) * 2f, liveTop, columnWidth,
+                "CELL MAX",
+                formatCellVoltage(state.hvCellMaxV),
+                Float.isNaN(state.hvCellMaxV) ? COLOR_MUTED : COLOR_GREEN);
+
+        drawMetric(canvas, margin + (columnWidth + gap) * 3f, liveTop, columnWidth,
+                "CELL DELTA",
+                formatDelta(state.hvCellDeltaMv),
+                Float.isNaN(state.hvCellDeltaMv) ? COLOR_MUTED : COLOR_AMBER);
+
+        drawMetric(canvas, margin + (columnWidth + gap) * 4f, liveTop, columnWidth,
+                "BATTERY TEMP",
+                formatTemperatureRange(state.hvTempMinC, state.hvTempMaxC),
+                Float.isNaN(state.hvTempMinC) ? COLOR_MUTED : COLOR_CYAN);
 
         drawMetric(canvas, margin, top, columnWidth,
                 "ELECTRIC RANGE",
@@ -379,6 +405,25 @@ public final class PowerFlowView extends View {
         return Float.isNaN(value)
                 ? "-- V"
                 : String.format(Locale.US, "%.2f V", value);
+    }
+
+    private String formatCellVoltage(float value) {
+        return Float.isNaN(value)
+                ? "-- V"
+                : String.format(Locale.US, "%.3f V", value);
+    }
+
+    private String formatDelta(float value) {
+        return Float.isNaN(value)
+                ? "-- mV"
+                : String.format(Locale.US, "%.0f mV", value);
+    }
+
+    private String formatTemperatureRange(float min, float max) {
+        if (Float.isNaN(min) || Float.isNaN(max)) {
+            return "-- °C";
+        }
+        return String.format(Locale.US, "%.0f–%.0f °C", min, max);
     }
 
     private String shortChargeMode(String chargeMode) {
