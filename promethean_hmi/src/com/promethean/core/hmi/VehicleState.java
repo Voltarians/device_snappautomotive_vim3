@@ -17,6 +17,16 @@ final class VehicleState {
 
     final boolean pcgConnected;
     final float system12VoltageV;
+    final float hvSocPct;
+    final float liveElectricRangeMiles;
+    final float liveFuelRangeMiles;
+    final float liveTotalRangeMiles;
+    final float liveEfficiencyMiPerKwh;
+    final boolean vehicleOn;
+    final String liveShiftPosition;
+    final float liveVehicleSpeedMph;
+    final int liveMotorRpm;
+    final String liveChargeMode;
     final float hvPackVoltageV;
     final float hvCellMinV;
     final float hvCellMaxV;
@@ -48,6 +58,16 @@ final class VehicleState {
             String connectionState,
             boolean pcgConnected,
             float system12VoltageV,
+            float hvSocPct,
+            float liveElectricRangeMiles,
+            float liveFuelRangeMiles,
+            float liveTotalRangeMiles,
+            float liveEfficiencyMiPerKwh,
+            boolean vehicleOn,
+            String liveShiftPosition,
+            float liveVehicleSpeedMph,
+            int liveMotorRpm,
+            String liveChargeMode,
             float hvPackVoltageV,
             float hvCellMinV,
             float hvCellMaxV,
@@ -77,6 +97,16 @@ final class VehicleState {
         this.connectionState = connectionState;
         this.pcgConnected = pcgConnected;
         this.system12VoltageV = system12VoltageV;
+        this.hvSocPct = hvSocPct;
+        this.liveElectricRangeMiles = liveElectricRangeMiles;
+        this.liveFuelRangeMiles = liveFuelRangeMiles;
+        this.liveTotalRangeMiles = liveTotalRangeMiles;
+        this.liveEfficiencyMiPerKwh = liveEfficiencyMiPerKwh;
+        this.vehicleOn = vehicleOn;
+        this.liveShiftPosition = liveShiftPosition;
+        this.liveVehicleSpeedMph = liveVehicleSpeedMph;
+        this.liveMotorRpm = liveMotorRpm;
+        this.liveChargeMode = liveChargeMode;
         this.hvPackVoltageV = hvPackVoltageV;
         this.hvCellMinV = hvCellMinV;
         this.hvCellMaxV = hvCellMaxV;
