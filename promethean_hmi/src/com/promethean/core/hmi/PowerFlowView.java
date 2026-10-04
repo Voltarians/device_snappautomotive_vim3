@@ -72,39 +72,212 @@ public final class PowerFlowView extends View {
             phase -= 1f;
         }
 
-        float batteryX = w * 0.16f;
-        float engineX = w * 0.48f;
-        float motorX = w * 0.50f;
-        float wheelsX = w * 0.82f;
-        float upperY = h * 0.27f;
-        float lowerY = h * 0.55f;
-
-        float nodeW = Math.min(w * 0.18f, dp(170));
-        float nodeH = Math.min(h * 0.21f, dp(128));
-
-        RectF battery = centeredRect(batteryX, lowerY, nodeW, nodeH);
-        RectF engine = centeredRect(engineX, upperY, nodeW, nodeH);
-        RectF motor = centeredRect(motorX, lowerY, nodeW, nodeH);
-        RectF wheels = centeredRect(wheelsX, lowerY, nodeW, nodeH);
-
-        drawBasePath(canvas, battery.centerX() + nodeW / 2f, battery.centerY(),
-                motor.centerX() - nodeW / 2f, motor.centerY());
-        drawBasePath(canvas, motor.centerX() + nodeW / 2f, motor.centerY(),
-                wheels.centerX() - nodeW / 2f, wheels.centerY());
-        drawBasePath(canvas, engine.centerX(), engine.bottom,
-                motor.centerX(), motor.top);
-
-        // Do not animate power direction until PCG-1 publishes a validated
-        // signed propulsion/regen power signal. Vehicle-on and RPM alone do
-        // not prove which way energy is flowing.
-        drawBatteryNode(canvas, battery);
-        drawEngineNode(canvas, engine);
-        drawMotorNode(canvas, motor);
-        drawWheelsNode(canvas, wheels);
+        // Gen-1 Volt-inspired power-flow presentation. Keep all live-data
+        // semantics separate from the artwork so the proven gateway path is
+        // untouched.
+        drawGen1PowerFlow(canvas, w, h);
 
         drawMetrics(canvas, w, h);
 
         postInvalidateDelayed(45);
+    }
+
+    private void drawGen1PowerFlow(Canvas canvas, float w, float h) {
+        // Reserve the lower portion for live diagnostics.
+        float diagramBottom = h - dp(178);
+        float diagramTop = dp(14);
+        float diagramH = Math.max(dp(190), diagramBottom - diagramTop);
+
+        // Deep blue halo similar to the original Gen-1 center-stack display.
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(0xFF07111B);
+        canvas.drawRect(0, diagramTop, w, diagramBottom, paint);
+
+        for (int i = 5; i >= 1; i--) {
+            int alpha = 10 + i * 7;
+            paint.setColor((alpha << 24) | 0x001E5A8A);
+            float inset = dp(i * 9);
+            RectF glow = new RectF(
+                    w * 0.08f + inset,
+                    diagramTop + inset,
+                    w * 0.92f - inset,
+                    diagramBottom - inset);
+            canvas.drawOval(glow, paint);
+        }
+
+        float battCx = w * 0.64f;
+        float battCy = diagramTop + diagramH * 0.43f;
+        float battW = Math.min(w * 0.40f, dp(390));
+        float battH = Math.min(diagramH * 0.28f, dp(112));
+        drawGen1Battery(canvas, battCx, battCy, battW, battH);
+
+        float leftX = w * 0.22f;
+        float wheelLeftX = w * 0.33f;
+        float wheelRightX = w * 0.82f;
+        float wheelTopY = diagramTop + diagramH * 0.25f;
+        float wheelBottomY = diagramTop + diagramH * 0.62f;
+
+        drawGen1PowerUnit(canvas, leftX, battCy, w * 0.13f, diagramH * 0.20f);
+        drawGen1Wheel(canvas, wheelLeftX, wheelTopY, dp(31));
+        drawGen1Wheel(canvas, wheelLeftX, wheelBottomY, dp(36));
+        drawGen1Wheel(canvas, wheelRightX, wheelTopY, dp(31));
+        drawGen1Wheel(canvas, wheelRightX, wheelBottomY, dp(36));
+
+        // Subtle network/flow paths. These are intentionally neutral until
+        // signed propulsion/regen power has been validated on this car.
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(dp(3));
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setColor(0xFF1A5470);
+        canvas.drawLine(leftX + w * 0.07f, battCy,
+                battCx - battW * 0.52f, battCy, paint);
+        canvas.drawLine(battCx + battW * 0.52f, battCy,
+                wheelRightX - dp(38), wheelBottomY, paint);
+
+        String mode = gen1PowerFlowLabel();
+        paint.setStyle(Paint.Style.FILL);
+        paint.setTypeface(android.graphics.Typeface.create(
+                android.graphics.Typeface.SANS_SERIF_CONDENSED,
+                android.graphics.Typeface.BOLD));
+        paint.setTextAlign(Paint.Align.CENTER);
+        paint.setTextSize(dp(25));
+        paint.setColor(COLOR_TEXT);
+        canvas.drawText(mode, w * 0.52f, diagramBottom - dp(14), paint);
+        paint.setTextAlign(Paint.Align.LEFT);
+    }
+
+    private void drawGen1Battery(Canvas canvas,
+                                 float cx, float cy,
+                                 float width, float height) {
+        float capW = width * 0.16f;
+        RectF body = new RectF(
+                cx - width / 2f,
+                cy - height / 2f,
+                cx + width / 2f - capW,
+                cy + height / 2f);
+
+        // Battery shadow/glow.
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(0x332CFF51);
+        RectF halo = new RectF(
+                body.left - dp(8), body.top - dp(8),
+                body.right + capW + dp(8), body.bottom + dp(8));
+        canvas.drawRoundRect(halo, dp(14), dp(14), paint);
+
+        paint.setColor(0xFFD6E0E4);
+        canvas.drawRoundRect(body, dp(10), dp(10), paint);
+
+        RectF cavity = new RectF(
+                body.left + dp(8), body.top + dp(10),
+                body.right - dp(7), body.bottom - dp(10));
+        paint.setColor(0xFF29383F);
+        canvas.drawRoundRect(cavity, dp(5), dp(5), paint);
+
+        int cells = 12;
+        float gap = dp(3);
+        float cellW = (cavity.width() - gap * (cells + 1)) / cells;
+        float fillPct = Float.isNaN(state.hvSocPct)
+                ? 0f
+                : Math.max(0f, Math.min(1f, state.hvSocPct / 100f));
+        int activeCells = Math.round(fillPct * cells);
+
+        for (int i = 0; i < cells; i++) {
+            float l = cavity.left + gap + i * (cellW + gap);
+            RectF cell = new RectF(
+                    l, cavity.top + gap,
+                    l + cellW, cavity.bottom - gap);
+            paint.setColor(i < activeCells ? 0xFF9CDD36 : 0xFF46545A);
+            canvas.drawRoundRect(cell, dp(2), dp(2), paint);
+        }
+
+        // Silver end cap used by the stock Gen-1 battery artwork.
+        RectF cap = new RectF(
+                body.right - dp(2), body.top - dp(6),
+                cx + width / 2f, body.bottom + dp(6));
+        paint.setColor(0xFFD9E5E9);
+        canvas.drawRoundRect(cap, dp(8), dp(8), paint);
+        paint.setColor(0xFF94A8B1);
+        canvas.drawRect(cap.left, cap.top + dp(8),
+                cap.left + dp(9), cap.bottom - dp(8), paint);
+
+        paint.setTypeface(android.graphics.Typeface.create(
+                android.graphics.Typeface.SANS_SERIF,
+                android.graphics.Typeface.BOLD));
+        paint.setTextSize(dp(15));
+        paint.setColor(0xFF07111B);
+        canvas.drawText("+", body.left + dp(12), body.bottom - dp(9), paint);
+        canvas.drawText("−", body.right - dp(24), body.bottom - dp(9), paint);
+    }
+
+    private void drawGen1PowerUnit(Canvas canvas,
+                                   float cx, float cy,
+                                   float width, float height) {
+        RectF unit = new RectF(
+                cx - width / 2f,
+                cy - height / 2f,
+                cx + width / 2f,
+                cy + height / 2f);
+
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(0x4400FF58);
+        RectF halo = new RectF(
+                unit.left - dp(7), unit.top - dp(7),
+                unit.right + dp(7), unit.bottom + dp(7));
+        canvas.drawRoundRect(halo, dp(16), dp(16), paint);
+
+        paint.setColor(0xFF11191D);
+        canvas.drawRoundRect(unit, dp(9), dp(9), paint);
+
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(dp(3));
+        paint.setColor(state.vehicleOn ? 0xFF8FDB39 : 0xFF62747C);
+        canvas.drawRoundRect(unit, dp(9), dp(9), paint);
+
+        // Simple engine/power-electronics ribs to echo the original artwork.
+        paint.setStrokeWidth(dp(2));
+        for (int i = 0; i < 4; i++) {
+            float y = unit.top + height * (0.30f + i * 0.12f);
+            canvas.drawLine(unit.left + width * 0.18f, y,
+                    unit.right - width * 0.16f, y, paint);
+        }
+        canvas.drawCircle(unit.left + width * 0.23f,
+                unit.bottom - height * 0.20f,
+                Math.min(width, height) * 0.11f, paint);
+    }
+
+    private void drawGen1Wheel(Canvas canvas, float cx, float cy, float radius) {
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(0xFF05090B);
+        canvas.drawCircle(cx, cy, radius, paint);
+
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(dp(4));
+        paint.setColor(0xFFCAD6DB);
+        canvas.drawCircle(cx, cy, radius * 0.70f, paint);
+
+        paint.setStrokeWidth(dp(3));
+        for (int i = 0; i < 5; i++) {
+            double a = -Math.PI / 2.0 + i * (Math.PI * 2.0 / 5.0);
+            float x = cx + (float) Math.cos(a) * radius * 0.62f;
+            float y = cy + (float) Math.sin(a) * radius * 0.62f;
+            canvas.drawLine(cx, cy, x, y, paint);
+        }
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(0xFF8197A0);
+        canvas.drawCircle(cx, cy, radius * 0.12f, paint);
+    }
+
+    private String gen1PowerFlowLabel() {
+        // Match Gen-1 terminology while refusing to invent an engine-active
+        // state from vehicle_on alone.
+        if (!state.vehicleOn) {
+            return "Battery Power";
+        }
+        if (!Float.isNaN(state.liveVehicleSpeedMph)
+                && Math.abs(state.liveVehicleSpeedMph) < 0.5f) {
+            return "Battery Power";
+        }
+        return "Battery Power";
     }
 
     private RectF centeredRect(float cx, float cy, float width, float height) {
