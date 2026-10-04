@@ -33,6 +33,7 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
     private volatile Socket activeSocket;
     private volatile long lastMessageElapsedMs = -1L;
 
+    private volatile float system12VoltageV = Float.NaN;
     private volatile float auxBusVoltageV = Float.NaN;
     private volatile float apmOutputVoltageV = Float.NaN;
     private volatile float apmCurrentA = Float.NaN;
@@ -87,6 +88,7 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
                 base.vehicleLabel,
                 connectionState,
                 online,
+                system12VoltageV,
                 auxBusVoltageV,
                 apmOutputVoltageV,
                 apmCurrentA,
@@ -153,6 +155,9 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
             }
             JSONObject apm = data.optJSONObject("apm");
 
+            float newSystem12 = firstNumber(
+                    data,
+                    "system_12v_voltage_v");
             float newAux = firstNumber(
                     data,
                     "bus12_voltage_v",
@@ -186,6 +191,10 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
                 }
             }
 
+            if (!Float.isNaN(newSystem12)) {
+                system12VoltageV = newSystem12;
+                hasTwelveVoltData = true;
+            }
             if (!Float.isNaN(newAux)) {
                 auxBusVoltageV = newAux;
                 hasTwelveVoltData = true;
