@@ -182,51 +182,84 @@ public final class PowerFlowView extends View {
                               float wheelRadius,
                               float diagramTop,
                               float diagramH) {
-        // Gen-1 Chevrolet Volt side profile: short low nose, steeply raked
-        // windshield, long arched roof, fastback/hatch rear and compact tail.
-        // This is traced as a simplified silhouette from a true side profile,
-        // not a generic sedan outline.
-        float noseX = frontWheelX - wheelRadius * 2.05f;
-        float tailX = rearWheelX + wheelRadius * 1.65f;
-        float sillY = wheelY + wheelRadius * 0.66f;
-        float hoodY = wheelY - wheelRadius * 0.78f;
-        float beltY = wheelY - wheelRadius * 0.94f;
-        float roofY = diagramTop + diagramH * 0.285f;
+        // First-generation Chevrolet Volt side profile, front to the left.
+        // Proportions are based on a true side view: long low nose, wheels
+        // pushed toward the corners, a low arcing roof and a short hatch tail.
+        float wheelbase = rearWheelX - frontWheelX;
+        float noseX = frontWheelX - wheelbase * 0.36f;
+        float tailX = rearWheelX + wheelbase * 0.30f;
+
+        float rockerY = wheelY + wheelRadius * 0.67f;
+        float hoodY = wheelY - wheelRadius * 0.58f;
+        float beltY = wheelY - wheelRadius * 0.72f;
+        float roofY = wheelY - wheelRadius * 1.92f;
 
         path.reset();
 
-        // Front bumper and low hood.
-        path.moveTo(noseX, sillY - wheelRadius * 0.10f);
-        path.lineTo(noseX + wheelRadius * 0.18f, hoodY + wheelRadius * 0.28f);
-        path.lineTo(frontWheelX - wheelRadius * 0.95f, hoodY + wheelRadius * 0.10f);
-        path.quadTo(frontWheelX - wheelRadius * 0.45f, hoodY - wheelRadius * 0.06f,
-                frontWheelX - wheelRadius * 0.18f, hoodY - wheelRadius * 0.10f);
+        // Front fascia and long, nearly horizontal hood.
+        path.moveTo(noseX, rockerY - wheelRadius * 0.18f);
+        path.quadTo(noseX - wheelRadius * 0.02f,
+                hoodY + wheelRadius * 0.34f,
+                noseX + wheelbase * 0.10f,
+                hoodY + wheelRadius * 0.18f);
+        path.lineTo(frontWheelX - wheelRadius * 0.62f, hoodY);
 
-        // A-pillar and roof arch.
-        path.lineTo(frontWheelX + wheelRadius * 0.28f, roofY + wheelRadius * 0.72f);
-        path.quadTo(frontWheelX + wheelRadius * 0.80f, roofY + wheelRadius * 0.20f,
-                frontWheelX + wheelRadius * 1.20f, roofY + wheelRadius * 0.06f);
-        path.quadTo((frontWheelX + rearWheelX) * 0.54f, roofY - wheelRadius * 0.08f,
-                rearWheelX - wheelRadius * 0.55f, roofY + wheelRadius * 0.10f);
+        // Hood to A-pillar.
+        path.quadTo(frontWheelX - wheelRadius * 0.18f,
+                hoodY - wheelRadius * 0.10f,
+                frontWheelX + wheelRadius * 0.08f,
+                hoodY - wheelRadius * 0.18f);
+        path.lineTo(frontWheelX + wheelbase * 0.20f,
+                roofY + wheelRadius * 0.44f);
 
-        // Fastback hatch / rear quarter.
-        path.quadTo(rearWheelX + wheelRadius * 0.18f, roofY + wheelRadius * 0.42f,
-                rearWheelX + wheelRadius * 0.72f, beltY + wheelRadius * 0.12f);
-        path.lineTo(tailX - wheelRadius * 0.12f, beltY + wheelRadius * 0.44f);
-        path.lineTo(tailX, sillY - wheelRadius * 0.10f);
-        path.lineTo(rearWheelX + wheelRadius * 1.02f, sillY);
+        // Roof arc.
+        path.quadTo(frontWheelX + wheelbase * 0.32f,
+                roofY,
+                frontWheelX + wheelbase * 0.47f,
+                roofY);
+        path.quadTo(frontWheelX + wheelbase * 0.69f,
+                roofY + wheelRadius * 0.02f,
+                rearWheelX - wheelbase * 0.16f,
+                roofY + wheelRadius * 0.18f);
 
-        // Rear wheel opening.
-        path.quadTo(rearWheelX, wheelY - wheelRadius * 1.06f,
-                rearWheelX - wheelRadius * 1.02f, sillY);
+        // Volt's sloping hatch / rear sail panel.
+        path.quadTo(rearWheelX + wheelbase * 0.02f,
+                roofY + wheelRadius * 0.40f,
+                rearWheelX + wheelbase * 0.15f,
+                beltY + wheelRadius * 0.08f);
+        path.lineTo(tailX - wheelbase * 0.04f,
+                beltY + wheelRadius * 0.26f);
+        path.quadTo(tailX,
+                beltY + wheelRadius * 0.38f,
+                tailX,
+                rockerY - wheelRadius * 0.12f);
 
-        // Rocker panel.
-        path.lineTo(frontWheelX + wheelRadius * 1.02f, sillY);
+        // Rear lower body into the rear wheel arch.
+        path.lineTo(rearWheelX + wheelRadius * 1.02f, rockerY);
+        path.quadTo(rearWheelX + wheelRadius * 0.92f,
+                wheelY - wheelRadius * 0.88f,
+                rearWheelX,
+                wheelY - wheelRadius * 1.03f);
+        path.quadTo(rearWheelX - wheelRadius * 0.92f,
+                wheelY - wheelRadius * 0.88f,
+                rearWheelX - wheelRadius * 1.02f,
+                rockerY);
 
-        // Front wheel opening.
-        path.quadTo(frontWheelX, wheelY - wheelRadius * 1.06f,
-                frontWheelX - wheelRadius * 1.02f, sillY);
+        // Rocker panel between the wheels.
+        path.lineTo(frontWheelX + wheelRadius * 1.02f, rockerY);
 
+        // Front wheel arch.
+        path.quadTo(frontWheelX + wheelRadius * 0.92f,
+                wheelY - wheelRadius * 0.88f,
+                frontWheelX,
+                wheelY - wheelRadius * 1.03f);
+        path.quadTo(frontWheelX - wheelRadius * 0.92f,
+                wheelY - wheelRadius * 0.88f,
+                frontWheelX - wheelRadius * 1.02f,
+                rockerY);
+
+        // Lower front bumper back to the nose.
+        path.lineTo(noseX + wheelbase * 0.05f, rockerY);
         path.close();
 
         paint.setStyle(Paint.Style.FILL);
@@ -240,25 +273,36 @@ public final class PowerFlowView extends View {
         paint.setColor(0xFF4E8FA8);
         canvas.drawPath(path, paint);
 
-        // Volt greenhouse / black beltline treatment.
+        // The Gen-1 Volt's dark greenhouse is one of its strongest profile cues.
         path.reset();
-        path.moveTo(frontWheelX + wheelRadius * 0.30f, roofY + wheelRadius * 0.70f);
-        path.quadTo(frontWheelX + wheelRadius * 0.82f, roofY + wheelRadius * 0.24f,
-                frontWheelX + wheelRadius * 1.22f, roofY + wheelRadius * 0.14f);
-        path.quadTo((frontWheelX + rearWheelX) * 0.55f, roofY + wheelRadius * 0.02f,
-                rearWheelX - wheelRadius * 0.52f, roofY + wheelRadius * 0.18f);
-        path.quadTo(rearWheelX + wheelRadius * 0.02f, roofY + wheelRadius * 0.38f,
-                rearWheelX + wheelRadius * 0.42f, beltY + wheelRadius * 0.16f);
+        float windshieldBaseX = frontWheelX + wheelbase * 0.18f;
+        float windshieldTopX = frontWheelX + wheelbase * 0.30f;
+        float hatchTopX = rearWheelX - wheelbase * 0.18f;
+        float hatchBaseX = rearWheelX + wheelbase * 0.08f;
 
-        paint.setColor(0xAA88C8DE);
-        paint.setStrokeWidth(dp(1.6f));
+        path.moveTo(windshieldBaseX, beltY);
+        path.lineTo(windshieldTopX, roofY + wheelRadius * 0.22f);
+        path.quadTo(frontWheelX + wheelbase * 0.46f,
+                roofY + wheelRadius * 0.06f,
+                hatchTopX,
+                roofY + wheelRadius * 0.22f);
+        path.lineTo(hatchBaseX, beltY);
+        path.close();
+
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(0x55243138);
         canvas.drawPath(path, paint);
 
-        // Strong black belt line is a defining first-gen Volt side feature.
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(dp(1.6f));
+        paint.setColor(0xAA88C8DE);
+        canvas.drawPath(path, paint);
+
+        // Black beltline / window sill.
         paint.setColor(0xCC24343B);
-        paint.setStrokeWidth(dp(3.2f));
-        canvas.drawLine(frontWheelX - wheelRadius * 0.15f, beltY + wheelRadius * 0.20f,
-                rearWheelX + wheelRadius * 0.48f, beltY + wheelRadius * 0.20f, paint);
+        paint.setStrokeWidth(dp(3.0f));
+        canvas.drawLine(windshieldBaseX, beltY,
+                hatchBaseX, beltY, paint);
     }
 
     private void drawGen1Battery(Canvas canvas,
