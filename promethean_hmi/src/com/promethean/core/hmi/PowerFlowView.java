@@ -112,27 +112,32 @@ public final class PowerFlowView extends View {
         drawGen1Battery(canvas, battCx, battCy, battW, battH);
 
         float leftX = w * 0.22f;
-        float wheelLeftX = w * 0.33f;
-        float wheelRightX = w * 0.82f;
-        float wheelTopY = diagramTop + diagramH * 0.25f;
-        float wheelBottomY = diagramTop + diagramH * 0.62f;
+        float frontWheelX = w * 0.76f;
+        float rearWheelX = w * 0.36f;
+        float wheelY = diagramTop + diagramH * 0.60f;
 
         drawGen1PowerUnit(canvas, leftX, battCy, w * 0.13f, diagramH * 0.20f);
-        drawGen1Wheel(canvas, wheelLeftX, wheelTopY, dp(31));
-        drawGen1Wheel(canvas, wheelLeftX, wheelBottomY, dp(36));
-        drawGen1Wheel(canvas, wheelRightX, wheelTopY, dp(31));
-        drawGen1Wheel(canvas, wheelRightX, wheelBottomY, dp(36));
 
-        // Subtle network/flow paths. These are intentionally neutral until
-        // signed propulsion/regen power has been validated on this car.
+        // Gen-1 screen is a side-view vehicle concept: one visible front wheel
+        // and one visible rear wheel, not four top-down wheels.
+        drawGen1Wheel(canvas, rearWheelX, wheelY, dp(38));
+        drawGen1Wheel(canvas, frontWheelX, wheelY, dp(38));
+
+        // Hint at the lower body line so the battery/power-unit read as one
+        // side-view vehicle system rather than disconnected symbols.
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(dp(3));
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setColor(0xFF1A5470);
+        float bodyY = wheelY - dp(20);
+        canvas.drawLine(leftX + w * 0.05f, bodyY,
+                frontWheelX + dp(28), bodyY, paint);
+
+        // Neutral flow paths until signed propulsion/regen power is validated.
         canvas.drawLine(leftX + w * 0.07f, battCy,
                 battCx - battW * 0.52f, battCy, paint);
-        canvas.drawLine(battCx + battW * 0.52f, battCy,
-                wheelRightX - dp(38), wheelBottomY, paint);
+        canvas.drawLine(battCx + battW * 0.45f, battCy,
+                frontWheelX - dp(34), wheelY - dp(8), paint);
 
         String mode = gen1PowerFlowLabel();
         paint.setStyle(Paint.Style.FILL);
@@ -246,22 +251,37 @@ public final class PowerFlowView extends View {
     }
 
     private void drawGen1Wheel(Canvas canvas, float cx, float cy, float radius) {
+        // Side-view tire: slightly taller than wide to read as an automotive
+        // wheel instead of a top-down icon.
+        RectF tire = new RectF(
+                cx - radius * 0.78f,
+                cy - radius,
+                cx + radius * 0.78f,
+                cy + radius);
+
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(0xFF05090B);
-        canvas.drawCircle(cx, cy, radius, paint);
+        canvas.drawOval(tire, paint);
+
+        RectF rim = new RectF(
+                cx - radius * 0.54f,
+                cy - radius * 0.70f,
+                cx + radius * 0.54f,
+                cy + radius * 0.70f);
 
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(dp(4));
         paint.setColor(0xFFCAD6DB);
-        canvas.drawCircle(cx, cy, radius * 0.70f, paint);
+        canvas.drawOval(rim, paint);
 
         paint.setStrokeWidth(dp(3));
         for (int i = 0; i < 5; i++) {
             double a = -Math.PI / 2.0 + i * (Math.PI * 2.0 / 5.0);
-            float x = cx + (float) Math.cos(a) * radius * 0.62f;
+            float x = cx + (float) Math.cos(a) * radius * 0.48f;
             float y = cy + (float) Math.sin(a) * radius * 0.62f;
             canvas.drawLine(cx, cy, x, y, paint);
         }
+
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(0xFF8197A0);
         canvas.drawCircle(cx, cy, radius * 0.12f, paint);
