@@ -45,6 +45,8 @@ final class VehicleState {
     final float cabinTemperatureC;
     final float climateBlowerPct;
     final boolean climateAcActive;
+    final String climateAcState;
+    final String climateGeneralStatusRawHex;
     final float coolantHeaterPowerKw;
     final float acEvaporatorTemperatureC;
     final int acCompressorRpm;
@@ -97,6 +99,8 @@ final class VehicleState {
             float cabinTemperatureC,
             float climateBlowerPct,
             boolean climateAcActive,
+            String climateAcState,
+            String climateGeneralStatusRawHex,
             float coolantHeaterPowerKw,
             float acEvaporatorTemperatureC,
             int acCompressorRpm,
@@ -146,6 +150,8 @@ final class VehicleState {
         this.cabinTemperatureC = cabinTemperatureC;
         this.climateBlowerPct = climateBlowerPct;
         this.climateAcActive = climateAcActive;
+        this.climateAcState = climateAcState;
+        this.climateGeneralStatusRawHex = climateGeneralStatusRawHex;
         this.coolantHeaterPowerKw = coolantHeaterPowerKw;
         this.acEvaporatorTemperatureC = acEvaporatorTemperatureC;
         this.acCompressorRpm = acCompressorRpm;
