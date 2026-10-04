@@ -41,6 +41,17 @@ final class VehicleState {
     final float apmCurrentA;
     final float apmPowerW;
     final String apmState;
+
+    final float cabinTemperatureC;
+    final float climateBlowerPct;
+    final boolean climateAcActive;
+    final float coolantHeaterPowerKw;
+    final float acEvaporatorTemperatureC;
+    final int acCompressorRpm;
+    final float heaterCoreInletTemperatureC;
+    final boolean remoteClimateActive;
+    final boolean seatHeatActive;
+
     final long pcgDataAgeMs;
 
     VehicleState(
@@ -83,6 +94,15 @@ final class VehicleState {
             float apmCurrentA,
             float apmPowerW,
             String apmState,
+            float cabinTemperatureC,
+            float climateBlowerPct,
+            boolean climateAcActive,
+            float coolantHeaterPowerKw,
+            float acEvaporatorTemperatureC,
+            int acCompressorRpm,
+            float heaterCoreInletTemperatureC,
+            boolean remoteClimateActive,
+            boolean seatHeatActive,
             long pcgDataAgeMs) {
         this.batteryPercent = batteryPercent;
         this.electricRangeMiles = electricRangeMiles;
@@ -123,6 +143,15 @@ final class VehicleState {
         this.apmCurrentA = apmCurrentA;
         this.apmPowerW = apmPowerW;
         this.apmState = apmState;
+        this.cabinTemperatureC = cabinTemperatureC;
+        this.climateBlowerPct = climateBlowerPct;
+        this.climateAcActive = climateAcActive;
+        this.coolantHeaterPowerKw = coolantHeaterPowerKw;
+        this.acEvaporatorTemperatureC = acEvaporatorTemperatureC;
+        this.acCompressorRpm = acCompressorRpm;
+        this.heaterCoreInletTemperatureC = heaterCoreInletTemperatureC;
+        this.remoteClimateActive = remoteClimateActive;
+        this.seatHeatActive = seatHeatActive;
         this.pcgDataAgeMs = pcgDataAgeMs;
     }
 }
