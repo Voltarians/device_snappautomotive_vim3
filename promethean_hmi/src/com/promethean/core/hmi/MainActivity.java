@@ -490,6 +490,7 @@ public final class MainActivity extends Activity {
         audioTile.setText(state.audioSummary);
         powerFlowView.setVehicleState(state);
         chargingView.setVehicleState(state);
+        climateView.setVehicleState(state);
         vehicleView.setVehicleState(state);
         twelveVoltView.setVehicleState(state);
     }
