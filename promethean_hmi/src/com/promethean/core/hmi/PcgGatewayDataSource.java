@@ -58,6 +58,17 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
     private volatile float apmCurrentA = Float.NaN;
     private volatile float apmPowerW = Float.NaN;
     private volatile String apmState = "UNKNOWN";
+
+    private volatile float cabinTemperatureC = Float.NaN;
+    private volatile float climateBlowerPct = Float.NaN;
+    private volatile boolean climateAcActive;
+    private volatile float coolantHeaterPowerKw = Float.NaN;
+    private volatile float acEvaporatorTemperatureC = Float.NaN;
+    private volatile int acCompressorRpm;
+    private volatile float heaterCoreInletTemperatureC = Float.NaN;
+    private volatile boolean remoteClimateActive;
+    private volatile boolean seatHeatActive;
+
     private volatile boolean hasTwelveVoltData;
     private volatile boolean hasSystemTwelveVoltData;
 
@@ -137,6 +148,15 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
                 apmCurrentA,
                 apmPowerW,
                 apmState,
+                cabinTemperatureC,
+                climateBlowerPct,
+                climateAcActive,
+                coolantHeaterPowerKw,
+                acEvaporatorTemperatureC,
+                acCompressorRpm,
+                heaterCoreInletTemperatureC,
+                remoteClimateActive,
+                seatHeatActive,
                 age);
     }
 
@@ -241,6 +261,17 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
                     "apm_power_w",
                     "apm_output_power_w");
 
+            float newCabinTemp = firstNumber(data, "cabin_temperature_c");
+            float newBlowerPct = firstNumber(data, "climate_blower_pct");
+            boolean newAcActive = data.optBoolean("climate_ac_active", climateAcActive);
+            float newCoolantHeaterKw = firstNumber(data, "coolant_heater_power_kw");
+            float newEvapTemp = firstNumber(data, "ac_evaporator_temperature_c");
+            int newCompressorRpm = data.optInt("ac_compressor_rpm", acCompressorRpm);
+            float newHeaterCoreTemp = firstNumber(data, "heater_core_inlet_temperature_c");
+            boolean newRemoteClimate = data.optBoolean(
+                    "remote_climate_active", remoteClimateActive);
+            boolean newSeatHeat = data.optBoolean("seat_heat_active", seatHeatActive);
+
             if (apm != null) {
                 if (Float.isNaN(newApmVoltage)) {
                     newApmVoltage = firstNumber(
@@ -337,6 +368,26 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
                 apmState = newState;
                 hasTwelveVoltData = true;
             }
+
+            if (!Float.isNaN(newCabinTemp)) {
+                cabinTemperatureC = newCabinTemp;
+            }
+            if (!Float.isNaN(newBlowerPct)) {
+                climateBlowerPct = newBlowerPct;
+            }
+            climateAcActive = newAcActive;
+            if (!Float.isNaN(newCoolantHeaterKw)) {
+                coolantHeaterPowerKw = newCoolantHeaterKw;
+            }
+            if (!Float.isNaN(newEvapTemp)) {
+                acEvaporatorTemperatureC = newEvapTemp;
+            }
+            acCompressorRpm = newCompressorRpm;
+            if (!Float.isNaN(newHeaterCoreTemp)) {
+                heaterCoreInletTemperatureC = newHeaterCoreTemp;
+            }
+            remoteClimateActive = newRemoteClimate;
+            seatHeatActive = newSeatHeat;
 
             lastMessageElapsedMs = SystemClock.elapsedRealtime();
         } catch (Exception ignored) {
