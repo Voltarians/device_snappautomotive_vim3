@@ -16,6 +16,7 @@ final class VehicleState {
     final String connectionState;
 
     final boolean pcgConnected;
+    final float system12VoltageV;
     final float auxBusVoltageV;
     final float apmOutputVoltageV;
     final float apmCurrentA;
@@ -38,6 +39,7 @@ final class VehicleState {
             String vehicleLabel,
             String connectionState,
             boolean pcgConnected,
+            float system12VoltageV,
             float auxBusVoltageV,
             float apmOutputVoltageV,
             float apmCurrentA,
@@ -58,6 +60,7 @@ final class VehicleState {
         this.vehicleLabel = vehicleLabel;
         this.connectionState = connectionState;
         this.pcgConnected = pcgConnected;
+        this.system12VoltageV = system12VoltageV;
         this.auxBusVoltageV = auxBusVoltageV;
         this.apmOutputVoltageV = apmOutputVoltageV;
         this.apmCurrentA = apmCurrentA;
