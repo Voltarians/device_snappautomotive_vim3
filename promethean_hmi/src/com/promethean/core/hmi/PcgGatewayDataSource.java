@@ -62,6 +62,8 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
     private volatile float cabinTemperatureC = Float.NaN;
     private volatile float climateBlowerPct = Float.NaN;
     private volatile boolean climateAcActive;
+    private volatile String climateAcState = "UNKNOWN";
+    private volatile String climateGeneralStatusRawHex = "";
     private volatile float coolantHeaterPowerKw = Float.NaN;
     private volatile float acEvaporatorTemperatureC = Float.NaN;
     private volatile int acCompressorRpm;
@@ -151,6 +153,8 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
                 cabinTemperatureC,
                 climateBlowerPct,
                 climateAcActive,
+                climateAcState,
+                climateGeneralStatusRawHex,
                 coolantHeaterPowerKw,
                 acEvaporatorTemperatureC,
                 acCompressorRpm,
@@ -264,6 +268,8 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
             float newCabinTemp = firstNumber(data, "cabin_temperature_c");
             float newBlowerPct = firstNumber(data, "climate_blower_pct");
             boolean newAcActive = data.optBoolean("climate_ac_active", climateAcActive);
+            String newAcState = firstString(data, "climate_ac_state");
+            String newAcRawHex = firstString(data, "climate_general_status_raw_hex");
             float newCoolantHeaterKw = firstNumber(data, "coolant_heater_power_kw");
             float newEvapTemp = firstNumber(data, "ac_evaporator_temperature_c");
             int newCompressorRpm = data.optInt("ac_compressor_rpm", acCompressorRpm);
@@ -376,6 +382,12 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
                 climateBlowerPct = newBlowerPct;
             }
             climateAcActive = newAcActive;
+            if (newAcState != null && !newAcState.isEmpty()) {
+                climateAcState = newAcState;
+            }
+            if (newAcRawHex != null && !newAcRawHex.isEmpty()) {
+                climateGeneralStatusRawHex = newAcRawHex;
+            }
             if (!Float.isNaN(newCoolantHeaterKw)) {
                 coolantHeaterPowerKw = newCoolantHeaterKw;
             }
