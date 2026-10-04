@@ -87,9 +87,6 @@ public final class PowerFlowView extends View {
         RectF motor = centeredRect(motorX, lowerY, nodeW, nodeH);
         RectF wheels = centeredRect(wheelsX, lowerY, nodeW, nodeH);
 
-        boolean regen = state.propulsionMode.toUpperCase(Locale.US).contains("REGEN");
-        boolean engineOn = state.propulsionMode.toUpperCase(Locale.US).contains("ENGINE");
-
         drawBasePath(canvas, battery.centerX() + nodeW / 2f, battery.centerY(),
                 motor.centerX() - nodeW / 2f, motor.centerY());
         drawBasePath(canvas, motor.centerX() + nodeW / 2f, motor.centerY(),
@@ -97,35 +94,12 @@ public final class PowerFlowView extends View {
         drawBasePath(canvas, engine.centerX(), engine.bottom,
                 motor.centerX(), motor.top);
 
-        if (regen) {
-            drawAnimatedFlow(canvas,
-                    wheels.centerX() - nodeW / 2f, wheels.centerY(),
-                    motor.centerX() + nodeW / 2f, motor.centerY(),
-                    COLOR_GREEN);
-            drawAnimatedFlow(canvas,
-                    motor.centerX() - nodeW / 2f, motor.centerY(),
-                    battery.centerX() + nodeW / 2f, battery.centerY(),
-                    COLOR_GREEN);
-        } else {
-            drawAnimatedFlow(canvas,
-                    battery.centerX() + nodeW / 2f, battery.centerY(),
-                    motor.centerX() - nodeW / 2f, motor.centerY(),
-                    COLOR_CYAN);
-            drawAnimatedFlow(canvas,
-                    motor.centerX() + nodeW / 2f, motor.centerY(),
-                    wheels.centerX() - nodeW / 2f, wheels.centerY(),
-                    COLOR_CYAN);
-            if (engineOn) {
-                drawAnimatedFlow(canvas,
-                        engine.centerX(), engine.bottom,
-                        motor.centerX(), motor.top,
-                        COLOR_AMBER);
-            }
-        }
-
+        // Do not animate power direction until PCG-1 publishes a validated
+        // signed propulsion/regen power signal. Vehicle-on and RPM alone do
+        // not prove which way energy is flowing.
         drawBatteryNode(canvas, battery);
-        drawEngineNode(canvas, engine, engineOn);
-        drawMotorNode(canvas, motor, regen);
+        drawEngineNode(canvas, engine);
+        drawMotorNode(canvas, motor);
         drawWheelsNode(canvas, wheels);
 
         drawMetrics(canvas, w, h);
@@ -217,24 +191,28 @@ public final class PowerFlowView extends View {
         canvas.drawRect(body.right, body.centerY() - dp(12),
                 body.right + dp(10), body.centerY() + dp(12), paint);
 
-        float fill = Math.max(0f, Math.min(1f, state.batteryPercent / 100f));
-        RectF charge = new RectF(
-                body.left + dp(5),
-                body.bottom - dp(5) - (body.height() - dp(10)) * fill,
-                body.right - dp(5),
-                body.bottom - dp(5));
+        if (!Float.isNaN(state.hvSocPct)) {
+            float fill = Math.max(0f, Math.min(1f, state.hvSocPct / 100f));
+            RectF charge = new RectF(
+                    body.left + dp(5),
+                    body.bottom - dp(5) - (body.height() - dp(10)) * fill,
+                    body.right - dp(5),
+                    body.bottom - dp(5));
 
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(COLOR_CYAN);
-        canvas.drawRoundRect(charge, dp(3), dp(3), paint);
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(COLOR_CYAN);
+            canvas.drawRoundRect(charge, dp(3), dp(3), paint);
+        }
 
         drawNodeLabel(canvas, rect, "BATTERY",
-                String.format(Locale.US, "%d%%", state.batteryPercent),
-                COLOR_CYAN);
+                Float.isNaN(state.hvSocPct)
+                        ? "SOC --"
+                        : String.format(Locale.US, "%.1f%%", state.hvSocPct),
+                Float.isNaN(state.hvSocPct) ? COLOR_MUTED : COLOR_CYAN);
     }
 
-    private void drawEngineNode(Canvas canvas, RectF rect, boolean engineOn) {
-        int accent = engineOn ? COLOR_AMBER : COLOR_MUTED;
+    private void drawEngineNode(Canvas canvas, RectF rect) {
+        int accent = state.vehicleOn ? COLOR_TEXT : COLOR_MUTED;
         drawNodeBackground(canvas, rect, accent);
 
         paint.setStyle(Paint.Style.STROKE);
@@ -250,12 +228,12 @@ public final class PowerFlowView extends View {
         canvas.drawLine(cx, cy - r * 1.7f, cx, cy - r, paint);
 
         drawNodeLabel(canvas, rect, "ENGINE",
-                engineOn ? "ON" : "OFF",
+                state.vehicleOn ? "AUTO" : "OFF",
                 accent);
     }
 
-    private void drawMotorNode(Canvas canvas, RectF rect, boolean regen) {
-        int accent = regen ? COLOR_GREEN : COLOR_CYAN;
+    private void drawMotorNode(Canvas canvas, RectF rect) {
+        int accent = state.vehicleOn ? COLOR_CYAN : COLOR_MUTED;
         drawNodeBackground(canvas, rect, accent);
 
         paint.setStyle(Paint.Style.STROKE);
@@ -274,7 +252,7 @@ public final class PowerFlowView extends View {
         paint.setTextAlign(Paint.Align.LEFT);
 
         drawNodeLabel(canvas, rect, "DRIVE MOTOR",
-                regen ? "REGEN" : "DRIVE",
+                motorStateLabel(),
                 accent);
     }
 
@@ -292,7 +270,11 @@ public final class PowerFlowView extends View {
         canvas.drawLine(rect.centerX() - r * 0.7f, cy,
                 rect.centerX() + r * 0.7f, cy, paint);
 
-        drawNodeLabel(canvas, rect, "WHEELS", "DRIVE", COLOR_TEXT);
+        drawNodeLabel(canvas, rect, "WHEELS",
+                Float.isNaN(state.liveVehicleSpeedMph)
+                        ? "--"
+                        : String.format(Locale.US, "%.0f mph", state.liveVehicleSpeedMph),
+                COLOR_TEXT);
     }
 
     private void drawNodeLabel(Canvas canvas,
@@ -351,23 +333,23 @@ public final class PowerFlowView extends View {
 
         drawMetric(canvas, margin, top, columnWidth,
                 "ELECTRIC RANGE",
-                String.format(Locale.US, "%d mi", state.electricRangeMiles),
-                COLOR_GREEN);
+                formatMiles(state.liveElectricRangeMiles),
+                Float.isNaN(state.liveElectricRangeMiles) ? COLOR_MUTED : COLOR_GREEN);
 
         drawMetric(canvas, margin + (columnWidth + gap), top, columnWidth,
                 "EFFICIENCY",
-                String.format(Locale.US, "%.1f mi/kWh", state.efficiencyMiPerKwh),
-                COLOR_CYAN);
+                formatEfficiency(state.liveEfficiencyMiPerKwh),
+                Float.isNaN(state.liveEfficiencyMiPerKwh) ? COLOR_MUTED : COLOR_CYAN);
 
         drawMetric(canvas, margin + (columnWidth + gap) * 2f, top, columnWidth,
                 "TOTAL RANGE",
-                String.format(Locale.US, "%d mi", state.totalRangeMiles),
-                COLOR_TEXT);
+                formatMiles(state.liveTotalRangeMiles),
+                Float.isNaN(state.liveTotalRangeMiles) ? COLOR_MUTED : COLOR_TEXT);
 
         drawMetric(canvas, margin + (columnWidth + gap) * 3f, top, columnWidth,
                 "CHARGE MODE",
-                shortChargeMode(state.chargeMode),
-                COLOR_TEXT);
+                shortChargeMode(state.liveChargeMode),
+                isKnown(state.liveChargeMode) ? COLOR_TEXT : COLOR_MUTED);
 
         drawMetric(canvas, margin + (columnWidth + gap) * 4f, top, columnWidth,
                 "12 V SYSTEM",
@@ -426,9 +408,37 @@ public final class PowerFlowView extends View {
         return String.format(Locale.US, "%.0f–%.0f °C", min, max);
     }
 
+    private String formatMiles(float value) {
+        return Float.isNaN(value)
+                ? "-- mi"
+                : String.format(Locale.US, "%.0f mi", value);
+    }
+
+    private String formatEfficiency(float value) {
+        return Float.isNaN(value)
+                ? "-- mi/kWh"
+                : String.format(Locale.US, "%.1f mi/kWh", value);
+    }
+
+    private boolean isKnown(String value) {
+        return value != null
+                && !value.trim().isEmpty()
+                && !"UNKNOWN".equalsIgnoreCase(value.trim());
+    }
+
+    private String motorStateLabel() {
+        if (!state.vehicleOn) {
+            return "OFF";
+        }
+        if (isKnown(state.liveShiftPosition)) {
+            return state.liveShiftPosition;
+        }
+        return state.liveMotorRpm != 0 ? "ACTIVE" : "READY";
+    }
+
     private String shortChargeMode(String chargeMode) {
-        if (chargeMode == null) {
-            return "";
+        if (!isKnown(chargeMode)) {
+            return "--";
         }
         String normalized = chargeMode.trim().toUpperCase(Locale.US);
         if ("IMMEDIATELY".equals(normalized)) {
