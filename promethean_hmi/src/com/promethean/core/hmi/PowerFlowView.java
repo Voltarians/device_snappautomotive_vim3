@@ -321,7 +321,7 @@ public final class PowerFlowView extends View {
         float top = h - dp(80);
         float margin = dp(18);
         float gap = dp(10);
-        float columnWidth = (w - margin * 2f - gap * 3f) / 4f;
+        float columnWidth = (w - margin * 2f - gap * 4f) / 5f;
 
         drawMetric(canvas, margin, top, columnWidth,
                 "ELECTRIC RANGE",
@@ -342,6 +342,11 @@ public final class PowerFlowView extends View {
                 "CHARGE MODE",
                 shortChargeMode(state.chargeMode),
                 COLOR_TEXT);
+
+        drawMetric(canvas, margin + (columnWidth + gap) * 4f, top, columnWidth,
+                "12 V SYSTEM",
+                formatVoltage(state.system12VoltageV),
+                Float.isNaN(state.system12VoltageV) ? COLOR_MUTED : COLOR_GREEN);
     }
 
     private void drawMetric(Canvas canvas,
@@ -368,6 +373,12 @@ public final class PowerFlowView extends View {
         }
 
         canvas.drawText(value, x, y + dp(25), paint);
+    }
+
+    private String formatVoltage(float value) {
+        return Float.isNaN(value)
+                ? "-- V"
+                : String.format(Locale.US, "%.2f V", value);
     }
 
     private String shortChargeMode(String chargeMode) {
