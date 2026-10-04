@@ -1,0 +1,13 @@
+# Development Wi-Fi peer pinning for PCG-1.
+#
+# Promethean Core and PCG-1 currently share 192.168.10.0/24 over Wi-Fi.
+# Their access point forwards unicast traffic but peer ARP discovery has proven
+# unreliable.  Pin the known PCG-1 Wi-Fi peer after boot so the application
+# link does not depend on broadcast ARP.
+#
+# This is intentionally scoped to wlan0 and the development addresses. The
+# application protocol remains transport-independent for the later Ethernet
+# deployment.
+
+on property:sys.boot_completed=1
+    exec_background u:r:init:s0 root root -- /system/bin/ip neigh replace 192.168.10.242 lladdr 88:a2:9e:dd:d9:32 nud permanent dev wlan0

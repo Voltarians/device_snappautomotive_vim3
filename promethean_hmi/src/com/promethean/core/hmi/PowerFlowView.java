@@ -72,65 +72,399 @@ public final class PowerFlowView extends View {
             phase -= 1f;
         }
 
-        float batteryX = w * 0.16f;
-        float engineX = w * 0.48f;
-        float motorX = w * 0.50f;
-        float wheelsX = w * 0.82f;
-        float upperY = h * 0.27f;
-        float lowerY = h * 0.55f;
-
-        float nodeW = Math.min(w * 0.18f, dp(170));
-        float nodeH = Math.min(h * 0.21f, dp(128));
-
-        RectF battery = centeredRect(batteryX, lowerY, nodeW, nodeH);
-        RectF engine = centeredRect(engineX, upperY, nodeW, nodeH);
-        RectF motor = centeredRect(motorX, lowerY, nodeW, nodeH);
-        RectF wheels = centeredRect(wheelsX, lowerY, nodeW, nodeH);
-
-        boolean regen = state.propulsionMode.toUpperCase(Locale.US).contains("REGEN");
-        boolean engineOn = state.propulsionMode.toUpperCase(Locale.US).contains("ENGINE");
-
-        drawBasePath(canvas, battery.centerX() + nodeW / 2f, battery.centerY(),
-                motor.centerX() - nodeW / 2f, motor.centerY());
-        drawBasePath(canvas, motor.centerX() + nodeW / 2f, motor.centerY(),
-                wheels.centerX() - nodeW / 2f, wheels.centerY());
-        drawBasePath(canvas, engine.centerX(), engine.bottom,
-                motor.centerX(), motor.top);
-
-        if (regen) {
-            drawAnimatedFlow(canvas,
-                    wheels.centerX() - nodeW / 2f, wheels.centerY(),
-                    motor.centerX() + nodeW / 2f, motor.centerY(),
-                    COLOR_GREEN);
-            drawAnimatedFlow(canvas,
-                    motor.centerX() - nodeW / 2f, motor.centerY(),
-                    battery.centerX() + nodeW / 2f, battery.centerY(),
-                    COLOR_GREEN);
-        } else {
-            drawAnimatedFlow(canvas,
-                    battery.centerX() + nodeW / 2f, battery.centerY(),
-                    motor.centerX() - nodeW / 2f, motor.centerY(),
-                    COLOR_CYAN);
-            drawAnimatedFlow(canvas,
-                    motor.centerX() + nodeW / 2f, motor.centerY(),
-                    wheels.centerX() - nodeW / 2f, wheels.centerY(),
-                    COLOR_CYAN);
-            if (engineOn) {
-                drawAnimatedFlow(canvas,
-                        engine.centerX(), engine.bottom,
-                        motor.centerX(), motor.top,
-                        COLOR_AMBER);
-            }
-        }
-
-        drawBatteryNode(canvas, battery);
-        drawEngineNode(canvas, engine, engineOn);
-        drawMotorNode(canvas, motor, regen);
-        drawWheelsNode(canvas, wheels);
+        // Gen-1 Volt-inspired power-flow presentation. Keep all live-data
+        // semantics separate from the artwork so the proven gateway path is
+        // untouched.
+        drawGen1PowerFlow(canvas, w, h);
 
         drawMetrics(canvas, w, h);
 
         postInvalidateDelayed(45);
+    }
+
+    private void drawGen1PowerFlow(Canvas canvas, float w, float h) {
+        // Reserve the lower portion for live diagnostics.
+        float diagramBottom = h - dp(178);
+        float diagramTop = dp(14);
+        float diagramH = Math.max(dp(190), diagramBottom - diagramTop);
+
+        // Deep blue halo similar to the original Gen-1 center-stack display.
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(0xFF07111B);
+        canvas.drawRect(0, diagramTop, w, diagramBottom, paint);
+
+        for (int i = 5; i >= 1; i--) {
+            int alpha = 10 + i * 7;
+            paint.setColor((alpha << 24) | 0x001E5A8A);
+            float inset = dp(i * 9);
+            RectF glow = new RectF(
+                    w * 0.08f + inset,
+                    diagramTop + inset,
+                    w * 0.92f - inset,
+                    diagramBottom - inset);
+            canvas.drawOval(glow, paint);
+        }
+
+        // Enlarge the entire side-view graphic without changing the tuned
+        // component proportions or spacing relationships.
+        final float graphicScale = 1.45f;
+        final float graphicCenterX = w * 0.52f;
+
+        float baseBattCx = w * 0.56f;
+        float battCx = graphicCenterX
+                + (baseBattCx - graphicCenterX) * graphicScale;
+
+        // Side-view wheel baseline.
+        float wheelY = diagramTop + diagramH * 0.60f;
+
+        // Preserve the established proportions while scaling the whole graphic.
+        float battW = Math.min(w * 0.40f, dp(390)) * 0.40f * graphicScale;
+        float battH = Math.min(diagramH * 0.28f, dp(112)) * 0.40f * graphicScale;
+        float engineW = w * 0.13f * 0.72f * graphicScale;
+        float engineH = diagramH * 0.20f * 0.72f * graphicScale;
+
+        // Keep the engine and battery on the same tuned bottom baseline.
+        float componentBottom = wheelY + dp(14.5f) * graphicScale;
+        float battCy = componentBottom - battH / 2f;
+        float engineCy = componentBottom - engineH / 2f;
+
+        float baseFrontWheelX = w * 0.41f;
+        float frontWheelX = graphicCenterX
+                + (baseFrontWheelX - graphicCenterX) * graphicScale;
+
+        float baseBattW = Math.min(w * 0.40f, dp(390)) * 0.40f;
+        float baseRearWheelX = baseBattCx + baseBattW * 0.50f - dp(8);
+        float rearWheelX = graphicCenterX
+                + (baseRearWheelX - graphicCenterX) * graphicScale;
+
+        float wheelRadius = dp(38) * graphicScale;
+
+        // Draw a stylized Gen-1 Volt side body behind the drivetrain art.
+        drawVoltBody(canvas, frontWheelX, rearWheelX, wheelY, wheelRadius,
+                diagramTop, diagramH);
+
+        drawGen1Battery(canvas, battCx, battCy, battW, battH);
+
+        // Engine remains centered behind the front wheel.
+        float engineCx = frontWheelX;
+        drawGen1PowerUnit(canvas, engineCx, engineCy, engineW, engineH);
+
+        // Wheels are the foreground layer.
+        drawGen1Wheel(canvas, frontWheelX, wheelY, wheelRadius);
+        drawGen1Wheel(canvas, rearWheelX, wheelY, wheelRadius);
+
+        // Neutral flow paths until signed propulsion/regen power is validated.
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(dp(3) * graphicScale);
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setColor(0xFF1A5470);
+        canvas.drawLine(engineCx + engineW * 0.50f, battCy,
+                battCx - battW * 0.52f, battCy, paint);
+        canvas.drawLine(battCx + battW * 0.45f, battCy,
+                rearWheelX - wheelRadius * 0.90f, wheelY - wheelRadius * 0.20f, paint);
+
+        String mode = gen1PowerFlowLabel();
+        paint.setStyle(Paint.Style.FILL);
+        paint.setTypeface(android.graphics.Typeface.create(
+                "sans-serif-condensed",
+                android.graphics.Typeface.BOLD));
+        paint.setTextAlign(Paint.Align.CENTER);
+        paint.setTextSize(dp(25));
+        paint.setColor(COLOR_TEXT);
+        canvas.drawText(mode, w * 0.52f, diagramBottom - dp(14), paint);
+        paint.setTextAlign(Paint.Align.LEFT);
+    }
+
+    private void drawVoltBody(Canvas canvas,
+                              float frontWheelX,
+                              float rearWheelX,
+                              float wheelY,
+                              float wheelRadius,
+                              float diagramTop,
+                              float diagramH) {
+        // First-generation Chevrolet Volt side profile, front to the left.
+        // Proportions are based on a true side view: long low nose, wheels
+        // pushed toward the corners, a low arcing roof and a short hatch tail.
+        float wheelbase = rearWheelX - frontWheelX;
+        float noseX = frontWheelX - wheelbase * 0.36f;
+        float tailX = rearWheelX + wheelbase * 0.30f;
+
+        float rockerY = wheelY + wheelRadius * 0.67f;
+        float hoodY = wheelY - wheelRadius * 0.58f;
+        float beltY = wheelY - wheelRadius * 0.72f;
+        float roofY = wheelY - wheelRadius * 1.92f;
+
+        path.reset();
+
+        // Front fascia and long, nearly horizontal hood.
+        path.moveTo(noseX, rockerY - wheelRadius * 0.18f);
+        path.quadTo(noseX - wheelRadius * 0.02f,
+                hoodY + wheelRadius * 0.34f,
+                noseX + wheelbase * 0.10f,
+                hoodY + wheelRadius * 0.18f);
+        path.lineTo(frontWheelX - wheelRadius * 0.62f, hoodY);
+
+        // Hood to A-pillar.
+        path.quadTo(frontWheelX - wheelRadius * 0.18f,
+                hoodY - wheelRadius * 0.10f,
+                frontWheelX + wheelRadius * 0.08f,
+                hoodY - wheelRadius * 0.18f);
+        path.lineTo(frontWheelX + wheelbase * 0.20f,
+                roofY + wheelRadius * 0.44f);
+
+        // Roof arc.
+        path.quadTo(frontWheelX + wheelbase * 0.32f,
+                roofY,
+                frontWheelX + wheelbase * 0.47f,
+                roofY);
+        path.quadTo(frontWheelX + wheelbase * 0.69f,
+                roofY + wheelRadius * 0.02f,
+                rearWheelX - wheelbase * 0.16f,
+                roofY + wheelRadius * 0.18f);
+
+        // Volt's sloping hatch / rear sail panel.
+        path.quadTo(rearWheelX + wheelbase * 0.02f,
+                roofY + wheelRadius * 0.40f,
+                rearWheelX + wheelbase * 0.15f,
+                beltY + wheelRadius * 0.08f);
+        path.lineTo(tailX - wheelbase * 0.04f,
+                beltY + wheelRadius * 0.26f);
+        path.quadTo(tailX,
+                beltY + wheelRadius * 0.38f,
+                tailX,
+                rockerY - wheelRadius * 0.12f);
+
+        // Rear lower body into the rear wheel arch.
+        path.lineTo(rearWheelX + wheelRadius * 1.02f, rockerY);
+        path.quadTo(rearWheelX + wheelRadius * 0.92f,
+                wheelY - wheelRadius * 0.88f,
+                rearWheelX,
+                wheelY - wheelRadius * 1.03f);
+        path.quadTo(rearWheelX - wheelRadius * 0.92f,
+                wheelY - wheelRadius * 0.88f,
+                rearWheelX - wheelRadius * 1.02f,
+                rockerY);
+
+        // Rocker panel between the wheels.
+        path.lineTo(frontWheelX + wheelRadius * 1.02f, rockerY);
+
+        // Front wheel arch.
+        path.quadTo(frontWheelX + wheelRadius * 0.92f,
+                wheelY - wheelRadius * 0.88f,
+                frontWheelX,
+                wheelY - wheelRadius * 1.03f);
+        path.quadTo(frontWheelX - wheelRadius * 0.92f,
+                wheelY - wheelRadius * 0.88f,
+                frontWheelX - wheelRadius * 1.02f,
+                rockerY);
+
+        // Lower front bumper back to the nose.
+        path.lineTo(noseX + wheelbase * 0.05f, rockerY);
+        path.close();
+
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(0x2419A9D8);
+        canvas.drawPath(path, paint);
+
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(dp(2.2f));
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setStrokeJoin(Paint.Join.ROUND);
+        paint.setColor(0xFF4E8FA8);
+        canvas.drawPath(path, paint);
+
+        // The Gen-1 Volt's dark greenhouse is one of its strongest profile cues.
+        path.reset();
+        float windshieldBaseX = frontWheelX + wheelbase * 0.18f;
+        float windshieldTopX = frontWheelX + wheelbase * 0.30f;
+        float hatchTopX = rearWheelX - wheelbase * 0.18f;
+        float hatchBaseX = rearWheelX + wheelbase * 0.08f;
+
+        path.moveTo(windshieldBaseX, beltY);
+        path.lineTo(windshieldTopX, roofY + wheelRadius * 0.22f);
+        path.quadTo(frontWheelX + wheelbase * 0.46f,
+                roofY + wheelRadius * 0.06f,
+                hatchTopX,
+                roofY + wheelRadius * 0.22f);
+        path.lineTo(hatchBaseX, beltY);
+        path.close();
+
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(0x55243138);
+        canvas.drawPath(path, paint);
+
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(dp(1.6f));
+        paint.setColor(0xAA88C8DE);
+        canvas.drawPath(path, paint);
+
+        // Black beltline / window sill.
+        paint.setColor(0xCC24343B);
+        paint.setStrokeWidth(dp(3.0f));
+        canvas.drawLine(windshieldBaseX, beltY,
+                hatchBaseX, beltY, paint);
+    }
+
+    private void drawGen1Battery(Canvas canvas,
+                                 float cx, float cy,
+                                 float width, float height) {
+        float capW = width * 0.16f;
+        RectF body = new RectF(
+                cx - width / 2f,
+                cy - height / 2f,
+                cx + width / 2f - capW,
+                cy + height / 2f);
+
+        // Battery shadow/glow.
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(0x332CFF51);
+        RectF halo = new RectF(
+                body.left - dp(8), body.top - dp(8),
+                body.right + capW + dp(8), body.bottom + dp(8));
+        canvas.drawRoundRect(halo, dp(14), dp(14), paint);
+
+        paint.setColor(0xFFD6E0E4);
+        canvas.drawRoundRect(body, dp(10), dp(10), paint);
+
+        RectF cavity = new RectF(
+                body.left + dp(3), body.top + dp(3),
+                body.right - dp(3), body.bottom - dp(3));
+        paint.setColor(0xFF29383F);
+        canvas.drawRoundRect(cavity, dp(5), dp(5), paint);
+
+        int cells = 12;
+        float gap = dp(2);
+        float cellW = (cavity.width() - gap * (cells + 1)) / cells;
+
+        // The Gen-1 Volt keeps roughly the bottom 20% of gross SOC out of the
+        // driver's usable display. Map only the 20-100% window to the graphic.
+        // Five visible charge steps preserve that reserve behavior: at the
+        // current ~36% gross SOC only one bar is illuminated.
+        int activeCells = 0;
+        if (!Float.isNaN(state.hvSocPct)) {
+            float usablePct = Math.max(0f, Math.min(80f, state.hvSocPct - 20f));
+            activeCells = Math.min(5, (int) Math.floor(usablePct / 16f));
+            if (usablePct > 0f && activeCells == 0) {
+                activeCells = 1;
+            }
+        }
+
+        for (int i = 0; i < cells; i++) {
+            float l = cavity.left + gap + i * (cellW + gap);
+            RectF cell = new RectF(
+                    l, cavity.top + gap,
+                    l + cellW, cavity.bottom - gap);
+
+            // Fill from the white end-cap toward the front, correcting the
+            // previous backwards orientation.
+            boolean active = i >= cells - activeCells;
+            paint.setColor(active ? 0xFF9CDD36 : 0xFF46545A);
+            canvas.drawRoundRect(cell, dp(1.5f), dp(1.5f), paint);
+        }
+
+        // Silver end cap used by the stock Gen-1 battery artwork.
+        RectF cap = new RectF(
+                body.right - dp(2), body.top - dp(6),
+                cx + width / 2f, body.bottom + dp(6));
+        paint.setColor(0xFFD9E5E9);
+        canvas.drawRoundRect(cap, dp(8), dp(8), paint);
+        paint.setColor(0xFF94A8B1);
+        canvas.drawRect(cap.left, cap.top + dp(5),
+                cap.left + dp(4), cap.bottom - dp(5), paint);
+
+        paint.setTypeface(android.graphics.Typeface.create(
+                android.graphics.Typeface.SANS_SERIF,
+                android.graphics.Typeface.BOLD));
+        paint.setTextSize(dp(15));
+        paint.setColor(0xFF07111B);
+        canvas.drawText("+", body.left + dp(12), body.bottom - dp(9), paint);
+        canvas.drawText("−", body.right - dp(24), body.bottom - dp(9), paint);
+    }
+
+    private void drawGen1PowerUnit(Canvas canvas,
+                                   float cx, float cy,
+                                   float width, float height) {
+        RectF unit = new RectF(
+                cx - width / 2f,
+                cy - height / 2f,
+                cx + width / 2f,
+                cy + height / 2f);
+
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(0x4400FF58);
+        RectF halo = new RectF(
+                unit.left - dp(7), unit.top - dp(7),
+                unit.right + dp(7), unit.bottom + dp(7));
+        canvas.drawRoundRect(halo, dp(16), dp(16), paint);
+
+        paint.setColor(0xFF11191D);
+        canvas.drawRoundRect(unit, dp(9), dp(9), paint);
+
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(dp(3));
+        paint.setColor(state.vehicleOn ? 0xFF8FDB39 : 0xFF62747C);
+        canvas.drawRoundRect(unit, dp(9), dp(9), paint);
+
+        // Simple engine/power-electronics ribs to echo the original artwork.
+        paint.setStrokeWidth(dp(2));
+        for (int i = 0; i < 4; i++) {
+            float y = unit.top + height * (0.30f + i * 0.12f);
+            canvas.drawLine(unit.left + width * 0.18f, y,
+                    unit.right - width * 0.16f, y, paint);
+        }
+        canvas.drawCircle(unit.left + width * 0.23f,
+                unit.bottom - height * 0.20f,
+                Math.min(width, height) * 0.11f, paint);
+    }
+
+    private void drawGen1Wheel(Canvas canvas, float cx, float cy, float radius) {
+        // Side-view tire: slightly taller than wide to read as an automotive
+        // wheel instead of a top-down icon.
+        RectF tire = new RectF(
+                cx - radius * 0.78f,
+                cy - radius,
+                cx + radius * 0.78f,
+                cy + radius);
+
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(0xFF05090B);
+        canvas.drawOval(tire, paint);
+
+        RectF rim = new RectF(
+                cx - radius * 0.54f,
+                cy - radius * 0.70f,
+                cx + radius * 0.54f,
+                cy + radius * 0.70f);
+
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(dp(4));
+        paint.setColor(0xFFCAD6DB);
+        canvas.drawOval(rim, paint);
+
+        paint.setStrokeWidth(dp(3));
+        for (int i = 0; i < 5; i++) {
+            double a = -Math.PI / 2.0 + i * (Math.PI * 2.0 / 5.0);
+            float x = cx + (float) Math.cos(a) * radius * 0.48f;
+            float y = cy + (float) Math.sin(a) * radius * 0.62f;
+            canvas.drawLine(cx, cy, x, y, paint);
+        }
+
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(0xFF8197A0);
+        canvas.drawCircle(cx, cy, radius * 0.12f, paint);
+    }
+
+    private String gen1PowerFlowLabel() {
+        // Match Gen-1 terminology while refusing to invent an engine-active
+        // state from vehicle_on alone.
+        if (!state.vehicleOn) {
+            return "Battery Power";
+        }
+        if (!Float.isNaN(state.liveVehicleSpeedMph)
+                && Math.abs(state.liveVehicleSpeedMph) < 0.5f) {
+            return "Battery Power";
+        }
+        return "Battery Power";
     }
 
     private RectF centeredRect(float cx, float cy, float width, float height) {
@@ -217,24 +551,28 @@ public final class PowerFlowView extends View {
         canvas.drawRect(body.right, body.centerY() - dp(12),
                 body.right + dp(10), body.centerY() + dp(12), paint);
 
-        float fill = Math.max(0f, Math.min(1f, state.batteryPercent / 100f));
-        RectF charge = new RectF(
-                body.left + dp(5),
-                body.bottom - dp(5) - (body.height() - dp(10)) * fill,
-                body.right - dp(5),
-                body.bottom - dp(5));
+        if (!Float.isNaN(state.hvSocPct)) {
+            float fill = Math.max(0f, Math.min(1f, state.hvSocPct / 100f));
+            RectF charge = new RectF(
+                    body.left + dp(5),
+                    body.bottom - dp(5) - (body.height() - dp(10)) * fill,
+                    body.right - dp(5),
+                    body.bottom - dp(5));
 
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(COLOR_CYAN);
-        canvas.drawRoundRect(charge, dp(3), dp(3), paint);
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(COLOR_CYAN);
+            canvas.drawRoundRect(charge, dp(3), dp(3), paint);
+        }
 
         drawNodeLabel(canvas, rect, "BATTERY",
-                String.format(Locale.US, "%d%%", state.batteryPercent),
-                COLOR_CYAN);
+                Float.isNaN(state.hvSocPct)
+                        ? "SOC --"
+                        : String.format(Locale.US, "%.1f%%", state.hvSocPct),
+                Float.isNaN(state.hvSocPct) ? COLOR_MUTED : COLOR_CYAN);
     }
 
-    private void drawEngineNode(Canvas canvas, RectF rect, boolean engineOn) {
-        int accent = engineOn ? COLOR_AMBER : COLOR_MUTED;
+    private void drawEngineNode(Canvas canvas, RectF rect) {
+        int accent = state.vehicleOn ? COLOR_TEXT : COLOR_MUTED;
         drawNodeBackground(canvas, rect, accent);
 
         paint.setStyle(Paint.Style.STROKE);
@@ -250,12 +588,12 @@ public final class PowerFlowView extends View {
         canvas.drawLine(cx, cy - r * 1.7f, cx, cy - r, paint);
 
         drawNodeLabel(canvas, rect, "ENGINE",
-                engineOn ? "ON" : "OFF",
+                state.vehicleOn ? "AUTO" : "OFF",
                 accent);
     }
 
-    private void drawMotorNode(Canvas canvas, RectF rect, boolean regen) {
-        int accent = regen ? COLOR_GREEN : COLOR_CYAN;
+    private void drawMotorNode(Canvas canvas, RectF rect) {
+        int accent = state.vehicleOn ? COLOR_CYAN : COLOR_MUTED;
         drawNodeBackground(canvas, rect, accent);
 
         paint.setStyle(Paint.Style.STROKE);
@@ -274,7 +612,7 @@ public final class PowerFlowView extends View {
         paint.setTextAlign(Paint.Align.LEFT);
 
         drawNodeLabel(canvas, rect, "DRIVE MOTOR",
-                regen ? "REGEN" : "DRIVE",
+                motorStateLabel(),
                 accent);
     }
 
@@ -292,7 +630,11 @@ public final class PowerFlowView extends View {
         canvas.drawLine(rect.centerX() - r * 0.7f, cy,
                 rect.centerX() + r * 0.7f, cy, paint);
 
-        drawNodeLabel(canvas, rect, "WHEELS", "DRIVE", COLOR_TEXT);
+        drawNodeLabel(canvas, rect, "WHEELS",
+                Float.isNaN(state.liveVehicleSpeedMph)
+                        ? "--"
+                        : String.format(Locale.US, "%.0f mph", state.liveVehicleSpeedMph),
+                COLOR_TEXT);
     }
 
     private void drawNodeLabel(Canvas canvas,
@@ -319,29 +661,88 @@ public final class PowerFlowView extends View {
 
     private void drawMetrics(Canvas canvas, float w, float h) {
         float top = h - dp(80);
+        float liveTop = top - dp(52);
+        float diagnosticTop = liveTop - dp(52);
         float margin = dp(18);
         float gap = dp(10);
-        float columnWidth = (w - margin * 2f - gap * 3f) / 4f;
+        float columnWidth = (w - margin * 2f - gap * 4f) / 5f;
+
+        drawMetric(canvas, margin, diagnosticTop, columnWidth,
+                "HV ENERGY",
+                formatEnergy(state.hvRemainingEnergyKwh),
+                Float.isNaN(state.hvRemainingEnergyKwh) ? COLOR_MUTED : COLOR_GREEN);
+
+        drawMetric(canvas, margin + (columnWidth + gap), diagnosticTop, columnWidth,
+                "HV SOC",
+                Float.isNaN(state.hvSocPct)
+                        ? "-- %"
+                        : String.format(Locale.US, "%.1f%%", state.hvSocPct),
+                Float.isNaN(state.hvSocPct) ? COLOR_MUTED : COLOR_CYAN);
+
+        drawMetric(canvas, margin + (columnWidth + gap) * 2f, diagnosticTop, columnWidth,
+                "VEHICLE",
+                state.vehicleOn ? "READY" : "OFF",
+                state.vehicleOn ? COLOR_GREEN : COLOR_MUTED);
+
+        drawMetric(canvas, margin + (columnWidth + gap) * 3f, diagnosticTop, columnWidth,
+                "PRNDL",
+                isKnown(state.liveShiftPosition) ? state.liveShiftPosition : "--",
+                isKnown(state.liveShiftPosition) ? COLOR_TEXT : COLOR_MUTED);
+
+        drawMetric(canvas, margin + (columnWidth + gap) * 4f, diagnosticTop, columnWidth,
+                "BUS HEALTH",
+                shortBusHealth(),
+                busHealthGood() ? COLOR_GREEN : COLOR_MUTED);
+
+        drawMetric(canvas, margin, liveTop, columnWidth,
+                "HV PACK",
+                formatVoltage(state.hvPackVoltageV),
+                Float.isNaN(state.hvPackVoltageV) ? COLOR_MUTED : COLOR_CYAN);
+
+        drawMetric(canvas, margin + (columnWidth + gap), liveTop, columnWidth,
+                "CELL MIN",
+                formatCellVoltage(state.hvCellMinV),
+                Float.isNaN(state.hvCellMinV) ? COLOR_MUTED : COLOR_AMBER);
+
+        drawMetric(canvas, margin + (columnWidth + gap) * 2f, liveTop, columnWidth,
+                "CELL MAX",
+                formatCellVoltage(state.hvCellMaxV),
+                Float.isNaN(state.hvCellMaxV) ? COLOR_MUTED : COLOR_GREEN);
+
+        drawMetric(canvas, margin + (columnWidth + gap) * 3f, liveTop, columnWidth,
+                "CELL DELTA",
+                formatDelta(state.hvCellDeltaMv),
+                Float.isNaN(state.hvCellDeltaMv) ? COLOR_MUTED : COLOR_AMBER);
+
+        drawMetric(canvas, margin + (columnWidth + gap) * 4f, liveTop, columnWidth,
+                "BATTERY TEMP",
+                formatTemperatureRange(state.hvTempMinC, state.hvTempMaxC),
+                Float.isNaN(state.hvTempMinC) ? COLOR_MUTED : COLOR_CYAN);
 
         drawMetric(canvas, margin, top, columnWidth,
                 "ELECTRIC RANGE",
-                String.format(Locale.US, "%d mi", state.electricRangeMiles),
-                COLOR_GREEN);
+                formatMiles(state.liveElectricRangeMiles),
+                Float.isNaN(state.liveElectricRangeMiles) ? COLOR_MUTED : COLOR_GREEN);
 
         drawMetric(canvas, margin + (columnWidth + gap), top, columnWidth,
                 "EFFICIENCY",
-                String.format(Locale.US, "%.1f mi/kWh", state.efficiencyMiPerKwh),
-                COLOR_CYAN);
+                formatEfficiency(state.liveEfficiencyMiPerKwh),
+                Float.isNaN(state.liveEfficiencyMiPerKwh) ? COLOR_MUTED : COLOR_CYAN);
 
         drawMetric(canvas, margin + (columnWidth + gap) * 2f, top, columnWidth,
                 "TOTAL RANGE",
-                String.format(Locale.US, "%d mi", state.totalRangeMiles),
-                COLOR_TEXT);
+                formatMiles(state.liveTotalRangeMiles),
+                Float.isNaN(state.liveTotalRangeMiles) ? COLOR_MUTED : COLOR_TEXT);
 
         drawMetric(canvas, margin + (columnWidth + gap) * 3f, top, columnWidth,
                 "CHARGE MODE",
-                shortChargeMode(state.chargeMode),
-                COLOR_TEXT);
+                shortChargeMode(state.liveChargeMode),
+                isKnown(state.liveChargeMode) ? COLOR_TEXT : COLOR_MUTED);
+
+        drawMetric(canvas, margin + (columnWidth + gap) * 4f, top, columnWidth,
+                "12 V SYSTEM",
+                formatVoltage(state.system12VoltageV),
+                Float.isNaN(state.system12VoltageV) ? COLOR_MUTED : COLOR_GREEN);
     }
 
     private void drawMetric(Canvas canvas,
@@ -370,9 +771,86 @@ public final class PowerFlowView extends View {
         canvas.drawText(value, x, y + dp(25), paint);
     }
 
+    private String formatVoltage(float value) {
+        return Float.isNaN(value)
+                ? "-- V"
+                : String.format(Locale.US, "%.2f V", value);
+    }
+
+    private String formatCellVoltage(float value) {
+        return Float.isNaN(value)
+                ? "-- V"
+                : String.format(Locale.US, "%.3f V", value);
+    }
+
+    private String formatDelta(float value) {
+        return Float.isNaN(value)
+                ? "-- mV"
+                : String.format(Locale.US, "%.0f mV", value);
+    }
+
+    private String formatTemperatureRange(float min, float max) {
+        if (Float.isNaN(min) || Float.isNaN(max)) {
+            return "-- °C";
+        }
+        return String.format(Locale.US, "%.0f–%.0f °C", min, max);
+    }
+
+    private String formatMiles(float value) {
+        return Float.isNaN(value)
+                ? "-- mi"
+                : String.format(Locale.US, "%.0f mi", value);
+    }
+
+    private String formatEfficiency(float value) {
+        return Float.isNaN(value)
+                ? "-- mi/kWh"
+                : String.format(Locale.US, "%.1f mi/kWh", value);
+    }
+
+    private String formatEnergy(float value) {
+        return Float.isNaN(value)
+                ? "-- kWh"
+                : String.format(Locale.US, "%.2f kWh", value);
+    }
+
+    private boolean busHealthGood() {
+        return state.physicalVehicleBusesWithTraffic >= 5
+                || "all_expected_buses_live".equalsIgnoreCase(
+                        state.physicalVehicleBusHealth);
+    }
+
+    private String shortBusHealth() {
+        if (busHealthGood()) {
+            return state.physicalVehicleBusesWithTraffic > 0
+                    ? state.physicalVehicleBusesWithTraffic + "/5 LIVE"
+                    : "ALL LIVE";
+        }
+        if (state.physicalVehicleBusesWithTraffic > 0) {
+            return state.physicalVehicleBusesWithTraffic + "/5 LIVE";
+        }
+        return "--";
+    }
+
+    private boolean isKnown(String value) {
+        return value != null
+                && !value.trim().isEmpty()
+                && !"UNKNOWN".equalsIgnoreCase(value.trim());
+    }
+
+    private String motorStateLabel() {
+        if (!state.vehicleOn) {
+            return "OFF";
+        }
+        if (isKnown(state.liveShiftPosition)) {
+            return state.liveShiftPosition;
+        }
+        return state.liveMotorRpm != 0 ? "ACTIVE" : "READY";
+    }
+
     private String shortChargeMode(String chargeMode) {
-        if (chargeMode == null) {
-            return "";
+        if (!isKnown(chargeMode)) {
+            return "--";
         }
         String normalized = chargeMode.trim().toUpperCase(Locale.US);
         if ("IMMEDIATELY".equals(normalized)) {

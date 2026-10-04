@@ -33,6 +33,17 @@ public final class VehicleView extends View {
 
     private String selectedAction = "";
 
+    public interface OnTwelveVoltSelectedListener {
+        void onTwelveVoltSelected();
+    }
+
+    private OnTwelveVoltSelectedListener twelveVoltSelectedListener;
+
+    public void setOnTwelveVoltSelectedListener(
+            OnTwelveVoltSelectedListener listener) {
+        twelveVoltSelectedListener = listener;
+    }
+
     public VehicleView(Context context) {
         super(context);
         init();
@@ -95,9 +106,9 @@ public final class VehicleView extends View {
 
         drawStatusCard(canvas, auxCard,
                 "12 V SYSTEM",
-                "-- V",
-                "Waiting for live vehicle data",
-                COLOR_MUTED);
+                formatVoltage(state.auxBusVoltageV),
+                buildAuxDetail(state),
+                state.pcgConnected ? COLOR_GREEN : COLOR_MUTED);
 
         drawStatusCard(canvas, dtcCard,
                 "DIAGNOSTICS",
@@ -144,7 +155,43 @@ public final class VehicleView extends View {
         drawActionButton(canvas, tpmsButton,
                 "TPMS", "DETAILS");
         drawActionButton(canvas, maintenanceButton,
-                "SERVICE", "HISTORY");
+                "12 V", "POWER");
+    }
+
+    private String formatVoltage(float value) {
+        return Float.isNaN(value)
+                ? "-- V"
+                : String.format(Locale.US, "%.2f V", value);
+    }
+
+    private String buildAuxDetail(VehicleState state) {
+        if (!state.pcgConnected) {
+            return "PCG-1 offline • waiting for gateway";
+        }
+
+        StringBuilder detail = new StringBuilder("APM");
+        boolean hasValue = false;
+
+        if (!Float.isNaN(state.apmOutputVoltageV)) {
+            detail.append(String.format(Locale.US,
+                    " %.2f V", state.apmOutputVoltageV));
+            hasValue = true;
+        }
+        if (!Float.isNaN(state.apmCurrentA)) {
+            detail.append(String.format(Locale.US,
+                    " • %.1f A", state.apmCurrentA));
+            hasValue = true;
+        }
+        if (!Float.isNaN(state.apmPowerW)) {
+            detail.append(String.format(Locale.US,
+                    " • %.0f W", state.apmPowerW));
+            hasValue = true;
+        }
+
+        if (!hasValue) {
+            return "PCG-1 online • waiting for APM values";
+        }
+        return detail.toString();
     }
 
     private void drawStatusCard(Canvas canvas,
@@ -368,7 +415,10 @@ public final class VehicleView extends View {
         } else if (tpmsButton.contains(x, y)) {
             selectedAction = "TPMS DETAILS";
         } else if (maintenanceButton.contains(x, y)) {
-            selectedAction = "SERVICE HISTORY";
+            selectedAction = "12 V POWER";
+            if (twelveVoltSelectedListener != null) {
+                twelveVoltSelectedListener.onTwelveVoltSelected();
+            }
         } else {
             return true;
         }

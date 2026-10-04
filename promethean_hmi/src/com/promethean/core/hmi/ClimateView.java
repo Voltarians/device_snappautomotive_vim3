@@ -23,6 +23,7 @@ public final class ClimateView extends View {
 
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Path path = new Path();
+    private VehicleState state = new DemoVehicleDataSource().read();
 
     private float temperatureF = 72f;
     private int fanLevel = 3;
@@ -83,6 +84,13 @@ public final class ClimateView extends View {
         invalidate();
     }
 
+    public void setVehicleState(VehicleState state) {
+        if (state != null) {
+            this.state = state;
+            invalidate();
+        }
+    }
+
     public float getTemperatureF() {
         return temperatureF;
     }
@@ -106,41 +114,113 @@ public final class ClimateView extends View {
         float gap = dp(18);
         float top = margin;
         float dialAreaHeight = h * 0.58f;
-
         float dialWidth = (w - margin * 2f - gap) / 2f;
 
         RectF tempCard = new RectF(
                 margin, top,
                 margin + dialWidth, dialAreaHeight);
-
         RectF fanCard = new RectF(
                 margin + dialWidth + gap, top,
                 w - margin, dialAreaHeight);
 
-        drawTemperatureCard(canvas, tempCard);
-        drawFanCard(canvas, fanCard);
+        drawLiveCabinCard(canvas, tempCard);
+        drawLiveBlowerCard(canvas, fanCard);
 
         float buttonsTop = dialAreaHeight + gap;
         float usableWidth = w - margin * 2f;
         float buttonGap = dp(10);
         float buttonWidth = (usableWidth - buttonGap * 4f) / 5f;
 
-        autoButton = new RectF(
-                margin, buttonsTop,
+        RectF b0 = new RectF(margin, buttonsTop,
                 margin + buttonWidth, h - margin);
-        acButton = shifted(autoButton, buttonWidth + buttonGap);
-        frontDefrostButton = shifted(acButton, buttonWidth + buttonGap);
-        rearDefrostButton = shifted(frontDefrostButton, buttonWidth + buttonGap);
-        recircButton = shifted(rearDefrostButton, buttonWidth + buttonGap);
+        RectF b1 = shifted(b0, buttonWidth + buttonGap);
+        RectF b2 = shifted(b1, buttonWidth + buttonGap);
+        RectF b3 = shifted(b2, buttonWidth + buttonGap);
+        RectF b4 = shifted(b3, buttonWidth + buttonGap);
 
-        drawToggleButton(canvas, autoButton, "AUTO", autoMode, COLOR_GREEN);
-        drawToggleButton(canvas, acButton, "A/C", acOn, COLOR_CYAN);
-        drawToggleButton(canvas, frontDefrostButton, "FRONT\nDEFROST",
-                frontDefrost, COLOR_AMBER);
-        drawToggleButton(canvas, rearDefrostButton, "REAR\nDEFROST",
-                rearDefrost, COLOR_AMBER);
-        drawToggleButton(canvas, recircButton, "RECIRC",
-                recirculate, COLOR_CYAN);
+        drawStatusButton(canvas, b0, "REMOTE", state.remoteClimateActive ? "ON" : "OFF",
+                state.remoteClimateActive ? COLOR_GREEN : COLOR_MUTED);
+        String acLabel = state.climateAcState == null
+                || state.climateAcState.isEmpty()
+                ? "UNKNOWN"
+                : state.climateAcState;
+        int acColor = "ACTIVE".equals(acLabel)
+                ? COLOR_CYAN
+                : ("OFF".equals(acLabel) ? COLOR_MUTED : COLOR_AMBER);
+        drawStatusButton(canvas, b1, "A/C", acLabel, acColor);
+        drawStatusButton(canvas, b2, "HEATER",
+                formatPower(state.coolantHeaterPowerKw),
+                Float.isNaN(state.coolantHeaterPowerKw) ? COLOR_MUTED : COLOR_AMBER);
+        drawStatusButton(canvas, b3, "COMPRESSOR",
+                state.acCompressorRpm > 0 ? state.acCompressorRpm + " RPM" : "--",
+                state.acCompressorRpm > 0 ? COLOR_CYAN : COLOR_MUTED);
+        drawStatusButton(canvas, b4, "SEAT HEAT",
+                state.seatHeatActive ? "ACTIVE" : "OFF",
+                state.seatHeatActive ? COLOR_AMBER : COLOR_MUTED);
+    }
+
+    private void drawLiveCabinCard(Canvas canvas, RectF rect) {
+        drawPanel(canvas, rect, COLOR_STROKE);
+        float cx = rect.centerX();
+        float cy = rect.centerY();
+
+        drawCenteredText(canvas, "CABIN TEMPERATURE",
+                cx, rect.top + dp(38), dp(13), COLOR_MUTED, true);
+
+        String value = "-- °F";
+        if (!Float.isNaN(state.cabinTemperatureC)) {
+            float f = state.cabinTemperatureC * 9f / 5f + 32f;
+            value = String.format(Locale.US, "%.1f °F", f);
+        }
+        drawCenteredText(canvas, value,
+                cx, cy + dp(4), dp(42), COLOR_TEXT, true);
+
+        String sub = Float.isNaN(state.cabinTemperatureC)
+                ? "WAITING FOR SWCAN"
+                : String.format(Locale.US, "%.1f °C • LIVE", state.cabinTemperatureC);
+        drawCenteredText(canvas, sub,
+                cx, cy + dp(46), dp(11), COLOR_CYAN, true);
+    }
+
+    private void drawLiveBlowerCard(Canvas canvas, RectF rect) {
+        drawPanel(canvas, rect, COLOR_STROKE);
+        float cx = rect.centerX();
+        float cy = rect.centerY();
+
+        drawCenteredText(canvas, "FRONT BLOWER",
+                cx, rect.top + dp(38), dp(13), COLOR_MUTED, true);
+
+        String value = Float.isNaN(state.climateBlowerPct)
+                ? "-- %"
+                : String.format(Locale.US, "%.0f%%", state.climateBlowerPct);
+        drawCenteredText(canvas, value,
+                cx, cy + dp(4), dp(42), COLOR_TEXT, true);
+
+        String sub = state.climateAcState == null
+                || state.climateAcState.isEmpty()
+                ? "A/C UNKNOWN"
+                : "A/C " + state.climateAcState;
+        int subColor = "ACTIVE".equals(state.climateAcState)
+                ? COLOR_CYAN
+                : ("OFF".equals(state.climateAcState) ? COLOR_MUTED : COLOR_AMBER);
+        drawCenteredText(canvas, sub,
+                cx, cy + dp(46), dp(11),
+                subColor, true);
+    }
+
+    private void drawStatusButton(Canvas canvas, RectF rect,
+                                  String label, String value, int accent) {
+        drawPanel(canvas, rect, accent);
+        drawCenteredText(canvas, label,
+                rect.centerX(), rect.centerY() - dp(8),
+                dp(11), COLOR_MUTED, true);
+        drawCenteredText(canvas, value,
+                rect.centerX(), rect.centerY() + dp(16),
+                dp(14), accent, true);
+    }
+
+    private String formatPower(float kw) {
+        return Float.isNaN(kw) ? "--" : String.format(Locale.US, "%.2f kW", kw);
     }
 
     private void drawTemperatureCard(Canvas canvas, RectF rect) {
@@ -315,42 +395,12 @@ public final class ClimateView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (event.getAction() != MotionEvent.ACTION_UP) {
-            return true;
+        // Live climate page is intentionally read-only for unproven HVAC
+        // commands. Remote climate transmit support will be enabled only on
+        // the separately validated command path.
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            performClick();
         }
-
-        float x = event.getX();
-        float y = event.getY();
-
-        if (tempMinus.contains(x, y)) {
-            applyTemperatureRotaryDelta(-1);
-        } else if (tempPlus.contains(x, y)) {
-            applyTemperatureRotaryDelta(1);
-        } else if (fanMinus.contains(x, y)) {
-            applyFanRotaryDelta(-1);
-        } else if (fanPlus.contains(x, y)) {
-            applyFanRotaryDelta(1);
-        } else if (autoButton.contains(x, y)) {
-            autoMode = !autoMode;
-            invalidate();
-        } else if (acButton.contains(x, y)) {
-            acOn = !acOn;
-            autoMode = false;
-            invalidate();
-        } else if (frontDefrostButton.contains(x, y)) {
-            frontDefrost = !frontDefrost;
-            autoMode = false;
-            invalidate();
-        } else if (rearDefrostButton.contains(x, y)) {
-            rearDefrost = !rearDefrost;
-            invalidate();
-        } else if (recircButton.contains(x, y)) {
-            recirculate = !recirculate;
-            autoMode = false;
-            invalidate();
-        }
-
-        performClick();
         return true;
     }
 
