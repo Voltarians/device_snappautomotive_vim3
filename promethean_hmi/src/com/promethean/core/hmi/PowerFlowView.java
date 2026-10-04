@@ -106,22 +106,31 @@ public final class PowerFlowView extends View {
         }
 
         float battCx = w * 0.64f;
-        float battCy = diagramTop + diagramH * 0.43f;
-        float battW = Math.min(w * 0.40f, dp(390));
-        float battH = Math.min(diagramH * 0.28f, dp(112));
+        float battCy = diagramTop + diagramH * 0.47f;
+
+        // User-directed Gen-1 proportions: battery reduced by 60% from the
+        // previous artwork while retaining the same internal SOC rendering.
+        float battW = Math.min(w * 0.40f, dp(390)) * 0.40f;
+        float battH = Math.min(diagramH * 0.28f, dp(112)) * 0.40f;
         drawGen1Battery(canvas, battCx, battCy, battW, battH);
 
         float leftX = w * 0.22f;
-        float frontWheelX = w * 0.76f;
-        float rearWheelX = w * 0.36f;
+
+        // Side-view orientation: front wheel toward the power unit, rear wheel
+        // toward the battery end cap. Bring them slightly closer together.
+        float frontWheelX = w * 0.41f;
+        float rearWheelX = battCx + battW * 0.50f - dp(8);
         float wheelY = diagramTop + diagramH * 0.60f;
 
-        drawGen1PowerUnit(canvas, leftX, battCy, w * 0.13f, diagramH * 0.20f);
+        // Engine/power unit reduced by 20% from the previous size.
+        drawGen1PowerUnit(canvas, leftX, battCy,
+                w * 0.13f * 0.80f,
+                diagramH * 0.20f * 0.80f);
 
-        // Gen-1 screen is a side-view vehicle concept: one visible front wheel
-        // and one visible rear wheel, not four top-down wheels.
-        drawGen1Wheel(canvas, rearWheelX, wheelY, dp(38));
+        // Battery is drawn first, so the rear wheel partially overlaps only
+        // the lower portion of the white rear end-cap, as on the side-view art.
         drawGen1Wheel(canvas, frontWheelX, wheelY, dp(38));
+        drawGen1Wheel(canvas, rearWheelX, wheelY, dp(38));
 
         // Hint at the lower body line so the battery/power-unit read as one
         // side-view vehicle system rather than disconnected symbols.
@@ -131,13 +140,13 @@ public final class PowerFlowView extends View {
         paint.setColor(0xFF1A5470);
         float bodyY = wheelY - dp(20);
         canvas.drawLine(leftX + w * 0.05f, bodyY,
-                frontWheelX + dp(28), bodyY, paint);
+                rearWheelX + dp(28), bodyY, paint);
 
         // Neutral flow paths until signed propulsion/regen power is validated.
         canvas.drawLine(leftX + w * 0.07f, battCy,
                 battCx - battW * 0.52f, battCy, paint);
         canvas.drawLine(battCx + battW * 0.45f, battCy,
-                frontWheelX - dp(34), wheelY - dp(8), paint);
+                rearWheelX - dp(34), wheelY - dp(8), paint);
 
         String mode = gen1PowerFlowLabel();
         paint.setStyle(Paint.Style.FILL);
