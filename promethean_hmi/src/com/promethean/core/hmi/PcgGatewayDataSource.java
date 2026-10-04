@@ -40,6 +40,7 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
     private volatile float apmPowerW = Float.NaN;
     private volatile String apmState = "UNKNOWN";
     private volatile boolean hasTwelveVoltData;
+    private volatile boolean hasSystemTwelveVoltData;
 
     PcgGatewayDataSource() {
         worker = new Thread(new Runnable() {
@@ -63,10 +64,12 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
         boolean online = socketConnected && age >= 0L && age <= STALE_AFTER_MS;
 
         String connectionState;
-        if (online && hasTwelveVoltData) {
-            connectionState = "PCG-1 ONLINE • 12 V LIVE • OTHER VALUES DEMO";
+        if (online && hasSystemTwelveVoltData) {
+            connectionState = "PCG-1 ONLINE • 12 V SYSTEM LIVE • OTHER VALUES DEMO";
+        } else if (online && hasTwelveVoltData) {
+            connectionState = "PCG-1 ONLINE • APM LIVE • OTHER VALUES DEMO";
         } else if (online) {
-            connectionState = "PCG-1 ONLINE • WAITING FOR APM DATA";
+            connectionState = "PCG-1 ONLINE • WAITING FOR VEHICLE DATA";
         } else if (socketConnected) {
             connectionState = "PCG-1 CONNECTED • DATA STALE";
         } else {
@@ -193,6 +196,7 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
 
             if (!Float.isNaN(newSystem12)) {
                 system12VoltageV = newSystem12;
+                hasSystemTwelveVoltData = true;
                 hasTwelveVoltData = true;
             }
             if (!Float.isNaN(newAux)) {
