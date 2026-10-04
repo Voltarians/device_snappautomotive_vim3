@@ -34,6 +34,16 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
     private volatile long lastMessageElapsedMs = -1L;
 
     private volatile float system12VoltageV = Float.NaN;
+    private volatile float hvSocPct = Float.NaN;
+    private volatile float liveElectricRangeMiles = Float.NaN;
+    private volatile float liveFuelRangeMiles = Float.NaN;
+    private volatile float liveTotalRangeMiles = Float.NaN;
+    private volatile float liveEfficiencyMiPerKwh = Float.NaN;
+    private volatile boolean vehicleOn;
+    private volatile String liveShiftPosition = "UNKNOWN";
+    private volatile float liveVehicleSpeedMph = Float.NaN;
+    private volatile int liveMotorRpm;
+    private volatile String liveChargeMode = "UNKNOWN";
     private volatile float hvPackVoltageV = Float.NaN;
     private volatile float hvCellMinV = Float.NaN;
     private volatile float hvCellMaxV = Float.NaN;
@@ -73,7 +83,7 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
 
         String connectionState;
         if (online && hasSystemTwelveVoltData && !Float.isNaN(hvPackVoltageV)) {
-            connectionState = "PCG-1 ONLINE • HV + 12 V LIVE • OTHER VALUES DEMO";
+            connectionState = "PCG-1 ONLINE • ENERGY LIVE";
         } else if (online && hasSystemTwelveVoltData) {
             connectionState = "PCG-1 ONLINE • 12 V SYSTEM LIVE • OTHER VALUES DEMO";
         } else if (online && hasTwelveVoltData) {
@@ -102,6 +112,16 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
                 connectionState,
                 online,
                 system12VoltageV,
+                hvSocPct,
+                liveElectricRangeMiles,
+                liveFuelRangeMiles,
+                liveTotalRangeMiles,
+                liveEfficiencyMiPerKwh,
+                vehicleOn,
+                liveShiftPosition,
+                liveVehicleSpeedMph,
+                liveMotorRpm,
+                liveChargeMode,
                 hvPackVoltageV,
                 hvCellMinV,
                 hvCellMaxV,
@@ -179,6 +199,16 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
             float newSystem12 = firstNumber(
                     data,
                     "system_12v_voltage_v");
+            float newHvSoc = firstNumber(data, "hv_soc_pct");
+            float newEvRange = firstNumber(data, "electric_range_miles");
+            float newFuelRange = firstNumber(data, "fuel_range_miles");
+            float newTotalRange = firstNumber(data, "total_range_miles");
+            float newEfficiency = firstNumber(data, "electric_efficiency_mi_per_kwh");
+            boolean newVehicleOn = data.optBoolean("vehicle_on", vehicleOn);
+            String newShift = firstString(data, "shift_position");
+            float newSpeed = firstNumber(data, "vehicle_speed_mph");
+            int newMotorRpm = data.optInt("motor_rpm", liveMotorRpm);
+            String newChargeMode = firstString(data, "charge_mode", "charging_state");
             float newHvPack = firstNumber(data, "hv_pack_voltage_v");
             float newHvCellMin = firstNumber(data, "hv_cell_min_v");
             float newHvCellMax = firstNumber(data, "hv_cell_max_v");
@@ -227,6 +257,32 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
                 system12VoltageV = newSystem12;
                 hasSystemTwelveVoltData = true;
                 hasTwelveVoltData = true;
+            }
+            if (!Float.isNaN(newHvSoc)) {
+                hvSocPct = newHvSoc;
+            }
+            if (!Float.isNaN(newEvRange)) {
+                liveElectricRangeMiles = newEvRange;
+            }
+            if (!Float.isNaN(newFuelRange)) {
+                liveFuelRangeMiles = newFuelRange;
+            }
+            if (!Float.isNaN(newTotalRange)) {
+                liveTotalRangeMiles = newTotalRange;
+            }
+            if (!Float.isNaN(newEfficiency)) {
+                liveEfficiencyMiPerKwh = newEfficiency;
+            }
+            vehicleOn = newVehicleOn;
+            if (newShift != null && !newShift.isEmpty()) {
+                liveShiftPosition = newShift;
+            }
+            if (!Float.isNaN(newSpeed)) {
+                liveVehicleSpeedMph = newSpeed;
+            }
+            liveMotorRpm = newMotorRpm;
+            if (newChargeMode != null && !newChargeMode.isEmpty()) {
+                liveChargeMode = newChargeMode;
             }
             if (!Float.isNaN(newHvPack)) {
                 hvPackVoltageV = newHvPack;
