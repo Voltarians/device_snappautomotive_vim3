@@ -105,9 +105,10 @@ public final class PowerFlowView extends View {
             canvas.drawOval(glow, paint);
         }
 
-        // Move the battery halfway toward the engine from the previous
-        // position: 0.61w -> midpoint with the 0.41w engine center = 0.51w.
-        float battCx = w * 0.51f;
+        // Restore half of the previous separation: the 0.51w position
+        // was visually too close to the engine. 0.56w is halfway back toward
+        // the prior 0.61w placement while preserving the rest of the layout.
+        float battCx = w * 0.56f;
 
         // Side-view wheel baseline.
         float wheelY = diagramTop + diagramH * 0.60f;
