@@ -18,6 +18,7 @@ final class VehicleState {
     final boolean pcgConnected;
     final float system12VoltageV;
     final float hvSocPct;
+    final float hvRemainingEnergyKwh;
     final float liveElectricRangeMiles;
     final float liveFuelRangeMiles;
     final float liveTotalRangeMiles;
@@ -59,6 +60,7 @@ final class VehicleState {
             boolean pcgConnected,
             float system12VoltageV,
             float hvSocPct,
+            float hvRemainingEnergyKwh,
             float liveElectricRangeMiles,
             float liveFuelRangeMiles,
             float liveTotalRangeMiles,
@@ -98,6 +100,7 @@ final class VehicleState {
         this.pcgConnected = pcgConnected;
         this.system12VoltageV = system12VoltageV;
         this.hvSocPct = hvSocPct;
+        this.hvRemainingEnergyKwh = hvRemainingEnergyKwh;
         this.liveElectricRangeMiles = liveElectricRangeMiles;
         this.liveFuelRangeMiles = liveFuelRangeMiles;
         this.liveTotalRangeMiles = liveTotalRangeMiles;
