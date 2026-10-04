@@ -27,6 +27,7 @@ final class DemoVehicleDataSource implements VehicleDataSource {
                 Float.NaN,
                 Float.NaN,
                 Float.NaN,
+                Float.NaN,
                 false,
                 "UNKNOWN",
                 Float.NaN,
