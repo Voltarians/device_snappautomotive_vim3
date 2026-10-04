@@ -106,7 +106,14 @@ public final class PowerFlowView extends View {
         }
 
         float battCx = w * 0.64f;
-        float battCy = diagramTop + diagramH * 0.47f;
+
+        // Side-view wheel baseline.
+        float wheelY = diagramTop + diagramH * 0.60f;
+
+        // Battery and engine sit just below the wheel centerline, matching the
+        // original Volt's side-view power-flow composition.
+        float componentCy = wheelY + dp(10);
+        float battCy = componentCy;
 
         // User-directed Gen-1 proportions: battery reduced by 60% from the
         // previous artwork while retaining the same internal SOC rendering.
@@ -114,16 +121,15 @@ public final class PowerFlowView extends View {
         float battH = Math.min(diagramH * 0.28f, dp(112)) * 0.40f;
         drawGen1Battery(canvas, battCx, battCy, battW, battH);
 
-        float leftX = w * 0.22f;
-
-        // Side-view orientation: front wheel toward the power unit, rear wheel
-        // toward the battery end cap. Bring them slightly closer together.
+        // Bring the wheels slightly closer together.
         float frontWheelX = w * 0.41f;
         float rearWheelX = battCx + battW * 0.50f - dp(8);
-        float wheelY = diagramTop + diagramH * 0.60f;
 
-        // Engine/power unit reduced by 20% from the previous size.
-        drawGen1PowerUnit(canvas, leftX, battCy,
+        // Move the engine rearward and center it behind the front wheel.
+        // It is drawn before the wheel, so the wheel naturally obscures part
+        // of the unit, like the original side-view graphic.
+        float engineCx = frontWheelX;
+        drawGen1PowerUnit(canvas, engineCx, componentCy,
                 w * 0.13f * 0.80f,
                 diagramH * 0.20f * 0.80f);
 
@@ -139,11 +145,11 @@ public final class PowerFlowView extends View {
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setColor(0xFF1A5470);
         float bodyY = wheelY - dp(20);
-        canvas.drawLine(leftX + w * 0.05f, bodyY,
+        canvas.drawLine(engineCx + w * 0.05f, bodyY,
                 rearWheelX + dp(28), bodyY, paint);
 
         // Neutral flow paths until signed propulsion/regen power is validated.
-        canvas.drawLine(leftX + w * 0.07f, battCy,
+        canvas.drawLine(engineCx + w * 0.07f, battCy,
                 battCx - battW * 0.52f, battCy, paint);
         canvas.drawLine(battCx + battW * 0.45f, battCy,
                 rearWheelX - dp(34), wheelY - dp(8), paint);
