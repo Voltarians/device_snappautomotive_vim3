@@ -137,7 +137,7 @@ public final class PowerFlowView extends View {
         String mode = gen1PowerFlowLabel();
         paint.setStyle(Paint.Style.FILL);
         paint.setTypeface(android.graphics.Typeface.create(
-                android.graphics.Typeface.SANS_SERIF_CONDENSED,
+                "sans-serif-condensed",
                 android.graphics.Typeface.BOLD));
         paint.setTextAlign(Paint.Align.CENTER);
         paint.setTextSize(dp(25));
