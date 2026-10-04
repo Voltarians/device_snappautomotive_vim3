@@ -34,6 +34,14 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
     private volatile long lastMessageElapsedMs = -1L;
 
     private volatile float system12VoltageV = Float.NaN;
+    private volatile float hvPackVoltageV = Float.NaN;
+    private volatile float hvCellMinV = Float.NaN;
+    private volatile float hvCellMaxV = Float.NaN;
+    private volatile float hvCellDeltaMv = Float.NaN;
+    private volatile float hvTempMinC = Float.NaN;
+    private volatile float hvTempMaxC = Float.NaN;
+    private volatile int physicalVehicleBusesWithTraffic;
+    private volatile String physicalVehicleBusHealth = "UNKNOWN";
     private volatile float auxBusVoltageV = Float.NaN;
     private volatile float apmOutputVoltageV = Float.NaN;
     private volatile float apmCurrentA = Float.NaN;
@@ -64,7 +72,9 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
         boolean online = socketConnected && age >= 0L && age <= STALE_AFTER_MS;
 
         String connectionState;
-        if (online && hasSystemTwelveVoltData) {
+        if (online && hasSystemTwelveVoltData && !Float.isNaN(hvPackVoltageV)) {
+            connectionState = "PCG-1 ONLINE • HV + 12 V LIVE • OTHER VALUES DEMO";
+        } else if (online && hasSystemTwelveVoltData) {
             connectionState = "PCG-1 ONLINE • 12 V SYSTEM LIVE • OTHER VALUES DEMO";
         } else if (online && hasTwelveVoltData) {
             connectionState = "PCG-1 ONLINE • APM LIVE • OTHER VALUES DEMO";
@@ -92,6 +102,14 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
                 connectionState,
                 online,
                 system12VoltageV,
+                hvPackVoltageV,
+                hvCellMinV,
+                hvCellMaxV,
+                hvCellDeltaMv,
+                hvTempMinC,
+                hvTempMaxC,
+                physicalVehicleBusesWithTraffic,
+                physicalVehicleBusHealth,
                 auxBusVoltageV,
                 apmOutputVoltageV,
                 apmCurrentA,
@@ -161,6 +179,17 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
             float newSystem12 = firstNumber(
                     data,
                     "system_12v_voltage_v");
+            float newHvPack = firstNumber(data, "hv_pack_voltage_v");
+            float newHvCellMin = firstNumber(data, "hv_cell_min_v");
+            float newHvCellMax = firstNumber(data, "hv_cell_max_v");
+            float newHvCellDelta = firstNumber(data, "hv_cell_delta_mv");
+            float newHvTempMin = firstNumber(data, "hv_temp_min_c");
+            float newHvTempMax = firstNumber(data, "hv_temp_max_c");
+            int newBusCount = data.optInt(
+                    "physical_vehicle_buses_with_traffic",
+                    physicalVehicleBusesWithTraffic);
+            String newBusHealth = firstString(
+                    data, "physical_vehicle_bus_health");
             float newAux = firstNumber(
                     data,
                     "bus12_voltage_v",
@@ -198,6 +227,28 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
                 system12VoltageV = newSystem12;
                 hasSystemTwelveVoltData = true;
                 hasTwelveVoltData = true;
+            }
+            if (!Float.isNaN(newHvPack)) {
+                hvPackVoltageV = newHvPack;
+            }
+            if (!Float.isNaN(newHvCellMin)) {
+                hvCellMinV = newHvCellMin;
+            }
+            if (!Float.isNaN(newHvCellMax)) {
+                hvCellMaxV = newHvCellMax;
+            }
+            if (!Float.isNaN(newHvCellDelta)) {
+                hvCellDeltaMv = newHvCellDelta;
+            }
+            if (!Float.isNaN(newHvTempMin)) {
+                hvTempMinC = newHvTempMin;
+            }
+            if (!Float.isNaN(newHvTempMax)) {
+                hvTempMaxC = newHvTempMax;
+            }
+            physicalVehicleBusesWithTraffic = newBusCount;
+            if (newBusHealth != null && !newBusHealth.isEmpty()) {
+                physicalVehicleBusHealth = newBusHealth;
             }
             if (!Float.isNaN(newAux)) {
                 auxBusVoltageV = newAux;
