@@ -105,8 +105,9 @@ public final class PowerFlowView extends View {
             canvas.drawOval(glow, paint);
         }
 
-        // Move the battery slightly forward toward the power unit.
-        float battCx = w * 0.61f;
+        // Move the battery halfway toward the engine from the previous
+        // position: 0.61w -> midpoint with the 0.41w engine center = 0.51w.
+        float battCx = w * 0.51f;
 
         // Side-view wheel baseline.
         float wheelY = diagramTop + diagramH * 0.60f;
@@ -119,9 +120,10 @@ public final class PowerFlowView extends View {
         float engineW = w * 0.13f * 0.72f;
         float engineH = diagramH * 0.20f * 0.72f;
 
-        // Put the bottoms of engine and battery on exactly the same baseline,
-        // slightly above the bottom of the tires.
-        float componentBottom = wheelY + dp(29);
+        // Keep the engine and battery on the same bottom baseline, but raise
+        // that baseline halfway toward the wheel centerline from the previous
+        // +29dp position.
+        float componentBottom = wheelY + dp(14.5f);
         float battCy = componentBottom - battH / 2f;
         float engineCy = componentBottom - engineH / 2f;
 
