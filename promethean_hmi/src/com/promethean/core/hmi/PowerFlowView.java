@@ -105,33 +105,36 @@ public final class PowerFlowView extends View {
             canvas.drawOval(glow, paint);
         }
 
-        float battCx = w * 0.64f;
+        // Move the battery slightly forward toward the power unit.
+        float battCx = w * 0.61f;
 
         // Side-view wheel baseline.
         float wheelY = diagramTop + diagramH * 0.60f;
 
-        // Battery and engine sit just below the wheel centerline, matching the
-        // original Volt's side-view power-flow composition.
-        float componentCy = wheelY + dp(10);
-        float battCy = componentCy;
-
-        // User-directed Gen-1 proportions: battery reduced by 60% from the
-        // previous artwork while retaining the same internal SOC rendering.
+        // User-directed Gen-1 proportions.
         float battW = Math.min(w * 0.40f, dp(390)) * 0.40f;
         float battH = Math.min(diagramH * 0.28f, dp(112)) * 0.40f;
+
+        // Engine gets another 10% reduction from the current artwork.
+        float engineW = w * 0.13f * 0.72f;
+        float engineH = diagramH * 0.20f * 0.72f;
+
+        // Put the bottoms of engine and battery on exactly the same baseline,
+        // slightly above the bottom of the tires.
+        float componentBottom = wheelY + dp(29);
+        float battCy = componentBottom - battH / 2f;
+        float engineCy = componentBottom - engineH / 2f;
+
         drawGen1Battery(canvas, battCx, battCy, battW, battH);
 
         // Bring the wheels slightly closer together.
         float frontWheelX = w * 0.41f;
         float rearWheelX = battCx + battW * 0.50f - dp(8);
 
-        // Move the engine rearward and center it behind the front wheel.
-        // It is drawn before the wheel, so the wheel naturally obscures part
-        // of the unit, like the original side-view graphic.
+        // Engine remains centered behind the front wheel and is drawn first so
+        // the tire naturally overlaps it.
         float engineCx = frontWheelX;
-        drawGen1PowerUnit(canvas, engineCx, componentCy,
-                w * 0.13f * 0.80f,
-                diagramH * 0.20f * 0.80f);
+        drawGen1PowerUnit(canvas, engineCx, engineCy, engineW, engineH);
 
         // Battery is drawn first, so the rear wheel partially overlaps only
         // the lower portion of the white rear end-cap, as on the side-view art.
@@ -188,26 +191,39 @@ public final class PowerFlowView extends View {
         canvas.drawRoundRect(body, dp(10), dp(10), paint);
 
         RectF cavity = new RectF(
-                body.left + dp(8), body.top + dp(10),
-                body.right - dp(7), body.bottom - dp(10));
+                body.left + dp(3), body.top + dp(3),
+                body.right - dp(3), body.bottom - dp(3));
         paint.setColor(0xFF29383F);
         canvas.drawRoundRect(cavity, dp(5), dp(5), paint);
 
         int cells = 12;
-        float gap = dp(3);
+        float gap = dp(2);
         float cellW = (cavity.width() - gap * (cells + 1)) / cells;
-        float fillPct = Float.isNaN(state.hvSocPct)
-                ? 0f
-                : Math.max(0f, Math.min(1f, state.hvSocPct / 100f));
-        int activeCells = Math.round(fillPct * cells);
+
+        // The Gen-1 Volt keeps roughly the bottom 20% of gross SOC out of the
+        // driver's usable display. Map only the 20-100% window to the graphic.
+        // Five visible charge steps preserve that reserve behavior: at the
+        // current ~36% gross SOC only one bar is illuminated.
+        int activeCells = 0;
+        if (!Float.isNaN(state.hvSocPct)) {
+            float usablePct = Math.max(0f, Math.min(80f, state.hvSocPct - 20f));
+            activeCells = Math.min(5, (int) Math.floor(usablePct / 16f));
+            if (usablePct > 0f && activeCells == 0) {
+                activeCells = 1;
+            }
+        }
 
         for (int i = 0; i < cells; i++) {
             float l = cavity.left + gap + i * (cellW + gap);
             RectF cell = new RectF(
                     l, cavity.top + gap,
                     l + cellW, cavity.bottom - gap);
-            paint.setColor(i < activeCells ? 0xFF9CDD36 : 0xFF46545A);
-            canvas.drawRoundRect(cell, dp(2), dp(2), paint);
+
+            // Fill from the white end-cap toward the front, correcting the
+            // previous backwards orientation.
+            boolean active = i >= cells - activeCells;
+            paint.setColor(active ? 0xFF9CDD36 : 0xFF46545A);
+            canvas.drawRoundRect(cell, dp(1.5f), dp(1.5f), paint);
         }
 
         // Silver end cap used by the stock Gen-1 battery artwork.
@@ -217,8 +233,8 @@ public final class PowerFlowView extends View {
         paint.setColor(0xFFD9E5E9);
         canvas.drawRoundRect(cap, dp(8), dp(8), paint);
         paint.setColor(0xFF94A8B1);
-        canvas.drawRect(cap.left, cap.top + dp(8),
-                cap.left + dp(9), cap.bottom - dp(8), paint);
+        canvas.drawRect(cap.left, cap.top + dp(5),
+                cap.left + dp(4), cap.bottom - dp(5), paint);
 
         paint.setTypeface(android.graphics.Typeface.create(
                 android.graphics.Typeface.SANS_SERIF,
