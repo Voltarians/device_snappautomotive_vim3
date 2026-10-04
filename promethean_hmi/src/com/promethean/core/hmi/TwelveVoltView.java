@@ -74,9 +74,9 @@ public final class TwelveVoltView extends View {
         RectF gateway = card(dcDc.right + gap, bus.bottom + gap, cardWidth, cardHeight);
 
         drawCard(canvas, bus,
-                "12 V BUS",
+                "APM LV SENSE",
                 formatVoltage(state.auxBusVoltageV),
-                "SAE PID 0142 module median",
+                "APM low-voltage sensed value",
                 state.pcgConnected ? COLOR_GREEN : COLOR_MUTED);
 
         drawCard(canvas, voltage,
