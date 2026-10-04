@@ -17,6 +17,14 @@ final class VehicleState {
 
     final boolean pcgConnected;
     final float system12VoltageV;
+    final float hvPackVoltageV;
+    final float hvCellMinV;
+    final float hvCellMaxV;
+    final float hvCellDeltaMv;
+    final float hvTempMinC;
+    final float hvTempMaxC;
+    final int physicalVehicleBusesWithTraffic;
+    final String physicalVehicleBusHealth;
     final float auxBusVoltageV;
     final float apmOutputVoltageV;
     final float apmCurrentA;
@@ -40,6 +48,14 @@ final class VehicleState {
             String connectionState,
             boolean pcgConnected,
             float system12VoltageV,
+            float hvPackVoltageV,
+            float hvCellMinV,
+            float hvCellMaxV,
+            float hvCellDeltaMv,
+            float hvTempMinC,
+            float hvTempMaxC,
+            int physicalVehicleBusesWithTraffic,
+            String physicalVehicleBusHealth,
             float auxBusVoltageV,
             float apmOutputVoltageV,
             float apmCurrentA,
@@ -61,6 +77,14 @@ final class VehicleState {
         this.connectionState = connectionState;
         this.pcgConnected = pcgConnected;
         this.system12VoltageV = system12VoltageV;
+        this.hvPackVoltageV = hvPackVoltageV;
+        this.hvCellMinV = hvCellMinV;
+        this.hvCellMaxV = hvCellMaxV;
+        this.hvCellDeltaMv = hvCellDeltaMv;
+        this.hvTempMinC = hvTempMinC;
+        this.hvTempMaxC = hvTempMaxC;
+        this.physicalVehicleBusesWithTraffic = physicalVehicleBusesWithTraffic;
+        this.physicalVehicleBusHealth = physicalVehicleBusHealth;
         this.auxBusVoltageV = auxBusVoltageV;
         this.apmOutputVoltageV = apmOutputVoltageV;
         this.apmCurrentA = apmCurrentA;
