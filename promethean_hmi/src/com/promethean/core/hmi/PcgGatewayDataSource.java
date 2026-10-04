@@ -35,6 +35,7 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
 
     private volatile float system12VoltageV = Float.NaN;
     private volatile float hvSocPct = Float.NaN;
+    private volatile float hvRemainingEnergyKwh = Float.NaN;
     private volatile float liveElectricRangeMiles = Float.NaN;
     private volatile float liveFuelRangeMiles = Float.NaN;
     private volatile float liveTotalRangeMiles = Float.NaN;
@@ -113,6 +114,7 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
                 online,
                 system12VoltageV,
                 hvSocPct,
+                hvRemainingEnergyKwh,
                 liveElectricRangeMiles,
                 liveFuelRangeMiles,
                 liveTotalRangeMiles,
@@ -200,6 +202,7 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
                     data,
                     "system_12v_voltage_v");
             float newHvSoc = firstNumber(data, "hv_soc_pct");
+            float newHvRemainingEnergy = firstNumber(data, "hv_remaining_energy_kwh");
             float newEvRange = firstNumber(data, "electric_range_miles");
             float newFuelRange = firstNumber(data, "fuel_range_miles");
             float newTotalRange = firstNumber(data, "total_range_miles");
@@ -260,6 +263,9 @@ final class PcgGatewayDataSource implements VehicleDataSource, AutoCloseable {
             }
             if (!Float.isNaN(newHvSoc)) {
                 hvSocPct = newHvSoc;
+            }
+            if (!Float.isNaN(newHvRemainingEnergy)) {
+                hvRemainingEnergyKwh = newHvRemainingEnergy;
             }
             if (!Float.isNaN(newEvRange)) {
                 liveElectricRangeMiles = newEvRange;
