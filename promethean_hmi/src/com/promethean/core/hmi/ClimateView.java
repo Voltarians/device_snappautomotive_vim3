@@ -140,8 +140,14 @@ public final class ClimateView extends View {
 
         drawStatusButton(canvas, b0, "REMOTE", state.remoteClimateActive ? "ON" : "OFF",
                 state.remoteClimateActive ? COLOR_GREEN : COLOR_MUTED);
-        drawStatusButton(canvas, b1, "A/C", state.climateAcActive ? "ACTIVE" : "OFF",
-                state.climateAcActive ? COLOR_CYAN : COLOR_MUTED);
+        String acLabel = state.climateAcState == null
+                || state.climateAcState.isEmpty()
+                ? "UNKNOWN"
+                : state.climateAcState;
+        int acColor = "ACTIVE".equals(acLabel)
+                ? COLOR_CYAN
+                : ("OFF".equals(acLabel) ? COLOR_MUTED : COLOR_AMBER);
+        drawStatusButton(canvas, b1, "A/C", acLabel, acColor);
         drawStatusButton(canvas, b2, "HEATER",
                 formatPower(state.coolantHeaterPowerKw),
                 Float.isNaN(state.coolantHeaterPowerKw) ? COLOR_MUTED : COLOR_AMBER);
@@ -190,10 +196,16 @@ public final class ClimateView extends View {
         drawCenteredText(canvas, value,
                 cx, cy + dp(4), dp(42), COLOR_TEXT, true);
 
-        String sub = state.climateAcActive ? "A/C ACTIVE" : "A/C OFF";
+        String sub = state.climateAcState == null
+                || state.climateAcState.isEmpty()
+                ? "A/C UNKNOWN"
+                : "A/C " + state.climateAcState;
+        int subColor = "ACTIVE".equals(state.climateAcState)
+                ? COLOR_CYAN
+                : ("OFF".equals(state.climateAcState) ? COLOR_MUTED : COLOR_AMBER);
         drawCenteredText(canvas, sub,
                 cx, cy + dp(46), dp(11),
-                state.climateAcActive ? COLOR_CYAN : COLOR_MUTED, true);
+                subColor, true);
     }
 
     private void drawStatusButton(Canvas canvas, RectF rect,
