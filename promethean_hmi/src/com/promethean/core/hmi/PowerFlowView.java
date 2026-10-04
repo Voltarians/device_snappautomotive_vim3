@@ -302,9 +302,37 @@ public final class PowerFlowView extends View {
     private void drawMetrics(Canvas canvas, float w, float h) {
         float top = h - dp(80);
         float liveTop = top - dp(52);
+        float diagnosticTop = liveTop - dp(52);
         float margin = dp(18);
         float gap = dp(10);
         float columnWidth = (w - margin * 2f - gap * 4f) / 5f;
+
+        drawMetric(canvas, margin, diagnosticTop, columnWidth,
+                "HV ENERGY",
+                formatEnergy(state.hvRemainingEnergyKwh),
+                Float.isNaN(state.hvRemainingEnergyKwh) ? COLOR_MUTED : COLOR_GREEN);
+
+        drawMetric(canvas, margin + (columnWidth + gap), diagnosticTop, columnWidth,
+                "HV SOC",
+                Float.isNaN(state.hvSocPct)
+                        ? "-- %"
+                        : String.format(Locale.US, "%.1f%%", state.hvSocPct),
+                Float.isNaN(state.hvSocPct) ? COLOR_MUTED : COLOR_CYAN);
+
+        drawMetric(canvas, margin + (columnWidth + gap) * 2f, diagnosticTop, columnWidth,
+                "VEHICLE",
+                state.vehicleOn ? "READY" : "OFF",
+                state.vehicleOn ? COLOR_GREEN : COLOR_MUTED);
+
+        drawMetric(canvas, margin + (columnWidth + gap) * 3f, diagnosticTop, columnWidth,
+                "PRNDL",
+                isKnown(state.liveShiftPosition) ? state.liveShiftPosition : "--",
+                isKnown(state.liveShiftPosition) ? COLOR_TEXT : COLOR_MUTED);
+
+        drawMetric(canvas, margin + (columnWidth + gap) * 4f, diagnosticTop, columnWidth,
+                "BUS HEALTH",
+                shortBusHealth(),
+                busHealthGood() ? COLOR_GREEN : COLOR_MUTED);
 
         drawMetric(canvas, margin, liveTop, columnWidth,
                 "HV PACK",
@@ -418,6 +446,30 @@ public final class PowerFlowView extends View {
         return Float.isNaN(value)
                 ? "-- mi/kWh"
                 : String.format(Locale.US, "%.1f mi/kWh", value);
+    }
+
+    private String formatEnergy(float value) {
+        return Float.isNaN(value)
+                ? "-- kWh"
+                : String.format(Locale.US, "%.2f kWh", value);
+    }
+
+    private boolean busHealthGood() {
+        return state.physicalVehicleBusesWithTraffic >= 5
+                || "all_expected_buses_live".equalsIgnoreCase(
+                        state.physicalVehicleBusHealth);
+    }
+
+    private String shortBusHealth() {
+        if (busHealthGood()) {
+            return state.physicalVehicleBusesWithTraffic > 0
+                    ? state.physicalVehicleBusesWithTraffic + "/5 LIVE"
+                    : "ALL LIVE";
+        }
+        if (state.physicalVehicleBusesWithTraffic > 0) {
+            return state.physicalVehicleBusesWithTraffic + "/5 LIVE";
+        }
+        return "--";
     }
 
     private boolean isKnown(String value) {
