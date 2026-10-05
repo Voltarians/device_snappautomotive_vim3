@@ -115,27 +115,11 @@
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
-            <GridLayout
+            <com.promethean.core.hmi.HomeDashboardView
                 android:id="@+id/home_grid"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1"
-                android:columnCount="3"
-                android:rowCount="3"
-                android:useDefaultMargins="false">
-
-                <Button android:id="@+id/home_tile_energy" style="@style/HomeIconButton" android:drawableTop="@drawable/ic_energy" android:text="ENERGY" />
-                <Button android:id="@+id/home_tile_climate" style="@style/HomeIconButton" android:drawableTop="@drawable/ic_climate" android:text="CLIMATE" />
-                <Button android:id="@+id/home_tile_radio" style="@style/HomeIconButton" android:drawableTop="@drawable/ic_radio" android:text="RADIO" />
-
-                <Button android:id="@+id/home_tile_apps" style="@style/HomeIconButton" android:drawableTop="@drawable/ic_apps" android:text="APPS" />
-                <Button android:id="@+id/home_tile_phone" style="@style/HomeIconButton" android:drawableTop="@drawable/ic_phone" android:text="PHONE" />
-                <Button android:id="@+id/home_tile_nav" style="@style/HomeIconButton" android:drawableTop="@drawable/ic_nav" android:text="NAV" />
-
-                <Button android:id="@+id/home_tile_vehicle" style="@style/HomeIconButton" android:drawableTop="@drawable/ic_vehicle" android:text="VEHICLE" />
-                <Button android:id="@+id/home_tile_charging" style="@style/HomeIconButton" android:drawableTop="@drawable/ic_charging" android:text="CHARGING" />
-                <Button android:id="@+id/home_tile_settings" style="@style/HomeIconButton" android:drawableTop="@drawable/ic_settings" android:text="SETTINGS" />
-            </GridLayout>
+                android:layout_weight="1" />
 
             <LinearLayout
                 android:id="@+id/energy_content"
