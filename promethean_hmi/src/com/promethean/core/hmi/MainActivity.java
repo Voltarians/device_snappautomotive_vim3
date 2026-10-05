@@ -7,7 +7,6 @@ import android.os.Looper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.GridLayout;
 import android.widget.LinearLayout;
 
 import java.text.SimpleDateFormat;
@@ -36,7 +35,7 @@ public final class MainActivity extends Activity {
     private TextView tripTile;
     private TextView climateTile;
     private TextView audioTile;
-    private GridLayout homeGrid;
+    private HomeDashboardView homeGrid;
     private LinearLayout energyContent;
     private PowerFlowView powerFlowView;
     private LinearLayout chargingContent;
@@ -157,15 +156,7 @@ public final class MainActivity extends Activity {
         bindButton(R.id.nav_climate, "CLIMATE");
         bindButton(R.id.nav_apps, "APPS");
         bindButton(R.id.nav_settings, "SETTINGS");
-        bindButton(R.id.home_tile_energy, "ENERGY");
-        bindButton(R.id.home_tile_climate, "CLIMATE");
-        bindButton(R.id.home_tile_radio, "RADIO");
-        bindButton(R.id.home_tile_apps, "APPS");
-        bindButton(R.id.home_tile_phone, "PHONE");
-        bindButton(R.id.home_tile_nav, "NAV");
-        bindButton(R.id.home_tile_vehicle, "VEHICLE");
-        bindButton(R.id.home_tile_charging, "CHARGING");
-        bindButton(R.id.home_tile_settings, "SETTINGS");
+        homeGrid.setOnSectionSelectedListener(this::selectSection);
         vehicleView.setOnTwelveVoltSelectedListener(this::showTwelveVolt);
     }
 
