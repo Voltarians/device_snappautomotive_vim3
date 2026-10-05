@@ -352,19 +352,34 @@ public final class HomeDashboardView extends View {
                     canvas.drawPath(path, strokePaint);
                 }
                 break;
-            case 3: // vehicle
-                path.moveTo(cx - 31f, cy + 8f);
-                path.lineTo(cx - 23f, cy - 12f);
-                path.quadTo(cx - 18f, cy - 22f, cx - 7f, cy - 22f);
-                path.lineTo(cx + 12f, cy - 22f);
-                path.quadTo(cx + 23f, cy - 22f, cx + 28f, cy - 12f);
-                path.lineTo(cx + 34f, cy + 8f);
-                path.lineTo(cx + 34f, cy + 21f);
-                path.lineTo(cx - 31f, cy + 21f);
+            case 3: // vehicle - clean side profile
+                path.moveTo(cx - 35f, cy + 10f);
+                path.lineTo(cx - 29f, cy - 2f);
+                path.quadTo(cx - 22f, cy - 9f, cx - 12f, cy - 11f);
+                path.lineTo(cx + 4f, cy - 11f);
+                path.quadTo(cx + 15f, cy - 10f, cx + 22f, cy - 3f);
+                path.lineTo(cx + 31f, cy + 2f);
+                path.quadTo(cx + 36f, cy + 5f, cx + 36f, cy + 11f);
+                path.lineTo(cx + 36f, cy + 16f);
+                path.lineTo(cx + 26f, cy + 16f);
+                path.quadTo(cx + 23f, cy + 4f, cx + 13f, cy + 4f);
+                path.quadTo(cx + 3f, cy + 4f, cx, cy + 16f);
+                path.lineTo(cx - 17f, cy + 16f);
+                path.quadTo(cx - 20f, cy + 4f, cx - 30f, cy + 4f);
+                path.quadTo(cx - 37f, cy + 4f, cx - 39f, cy + 10f);
                 path.close();
                 canvas.drawPath(path, strokePaint);
-                canvas.drawCircle(cx - 18f, cy + 24f, 6f, strokePaint);
-                canvas.drawCircle(cx + 21f, cy + 24f, 6f, strokePaint);
+
+                canvas.drawCircle(cx - 28f, cy + 17f, 8f, strokePaint);
+                canvas.drawCircle(cx + 15f, cy + 17f, 8f, strokePaint);
+
+                // windshield / roof line
+                path.reset();
+                path.moveTo(cx - 10f, cy - 10f);
+                path.lineTo(cx - 3f, cy - 21f);
+                path.lineTo(cx + 9f, cy - 21f);
+                path.lineTo(cx + 20f, cy - 4f);
+                canvas.drawPath(path, strokePaint);
                 break;
             case 4: // energy
                 canvas.drawRoundRect(new RectF(cx - 23f, cy - 29f, cx + 20f, cy + 27f),
