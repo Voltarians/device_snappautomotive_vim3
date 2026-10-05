@@ -134,23 +134,16 @@ public final class HomeDashboardView extends View {
         paint.setTypeface(Typeface.create("sans-serif", Typeface.BOLD));
         paint.setTextSize(56f);
         paint.setTextAlign(Paint.Align.LEFT);
+
         paint.setColor(Color.rgb(201, 209, 218));
         canvas.drawText("PROMETHE", 378f, y, paint);
 
-        float ax = 652f;
-        path.reset();
-        path.moveTo(ax, y);
-        path.lineTo(ax + 24f, y - 49f);
-        path.lineTo(ax + 48f, y);
-        path.lineTo(ax + 36f, y);
-        path.lineTo(ax + 24f, y - 25f);
-        path.lineTo(ax + 12f, y);
-        path.close();
+        // Use the real font glyph for A so the wordmark stays clean and aligned.
         paint.setColor(BLUE);
-        canvas.drawPath(path, paint);
+        canvas.drawText("A", 652f, y, paint);
 
         paint.setColor(Color.rgb(201, 209, 218));
-        canvas.drawText("N CORE", 706f, y, paint);
+        canvas.drawText("N CORE", 690f, y, paint);
     }
 
     private void drawMetricBar(
