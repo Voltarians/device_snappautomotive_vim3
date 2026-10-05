@@ -9,6 +9,9 @@ import android.view.MotionEvent;
 import android.view.View;
 
 public final class AppsView extends View {
+    public interface OnSettingsSelectedListener {
+        void onSettingsSelected();
+    }
     private static final int COLOR_BG = 0xFF070D10;
     private static final int COLOR_PANEL = 0xFF10181D;
     private static final int COLOR_STROKE = 0xFF27414A;
@@ -24,7 +27,7 @@ public final class AppsView extends View {
             "PROMETHEAN\nVISION",
             "MEDIA",
             "FILES",
-            "ALL APPS"
+            "SETTINGS"
     };
 
     private static final String[] SUBTITLES = {
@@ -33,7 +36,7 @@ public final class AppsView extends View {
             "Perception system",
             "Music + local media",
             "Local + network files",
-            "AAOS applications"
+            "Promethean Core configuration"
     };
 
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -43,6 +46,7 @@ public final class AppsView extends View {
     };
 
     private int selected = -1;
+    private OnSettingsSelectedListener settingsSelectedListener;
 
     public AppsView(Context context) {
         super(context);
@@ -65,6 +69,10 @@ public final class AppsView extends View {
                 android.graphics.Typeface.NORMAL));
         setClickable(true);
         setFocusable(true);
+    }
+
+    public void setOnSettingsSelectedListener(OnSettingsSelectedListener listener) {
+        settingsSelectedListener = listener;
     }
 
     @Override
@@ -208,16 +216,15 @@ public final class AppsView extends View {
                         cx + dp(5), cy - dp(30), paint);
                 break;
             default:
-                float s = dp(12);
-                for (int row = -1; row <= 1; row++) {
-                    for (int col = -1; col <= 1; col++) {
-                        RectF box = new RectF(
-                                cx + col * dp(22) - s / 2f,
-                                cy + row * dp(22) - s / 2f,
-                                cx + col * dp(22) + s / 2f,
-                                cy + row * dp(22) + s / 2f);
-                        canvas.drawRect(box, paint);
-                    }
+                canvas.drawCircle(cx, cy, dp(10), paint);
+                canvas.drawCircle(cx, cy, dp(25), paint);
+                for (int k = 0; k < 8; k++) {
+                    double angle = Math.PI * k / 4.0;
+                    float x1 = cx + (float)Math.cos(angle) * dp(25);
+                    float y1 = cy + (float)Math.sin(angle) * dp(25);
+                    float x2 = cx + (float)Math.cos(angle) * dp(34);
+                    float y2 = cy + (float)Math.sin(angle) * dp(34);
+                    canvas.drawLine(x1, y1, x2, y2, paint);
                 }
                 break;
         }
@@ -308,6 +315,9 @@ public final class AppsView extends View {
                 selected = i;
                 invalidate();
                 performClick();
+                if (i == 5 && settingsSelectedListener != null) {
+                    settingsSelectedListener.onSettingsSelected();
+                }
                 return true;
             }
         }
