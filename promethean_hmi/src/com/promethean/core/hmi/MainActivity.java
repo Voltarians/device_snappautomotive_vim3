@@ -157,6 +157,7 @@ public final class MainActivity extends Activity {
         bindButton(R.id.nav_apps, "APPS");
         bindButton(R.id.nav_settings, "SETTINGS");
         homeGrid.setOnSectionSelectedListener(this::selectSection);
+        appsView.setOnSettingsSelectedListener(this::showSettings);
         vehicleView.setOnTwelveVoltSelectedListener(this::showTwelveVolt);
     }
 
