@@ -135,15 +135,28 @@ public final class HomeDashboardView extends View {
         paint.setTextSize(56f);
         paint.setTextAlign(Paint.Align.LEFT);
 
-        paint.setColor(Color.rgb(201, 209, 218));
-        canvas.drawText("PROMETHE", 350f, y, paint);
+        final String left = "PROMETHE";
+        final String right = "N CORE";
+        final float aGap = 4f;
+        final float coreGap = 10f;
 
-        // Keep explicit spacing around the blue A so it does not collide with E or N.
+        float leftWidth = paint.measureText(left);
+        float aWidth = paint.measureText("A");
+        float rightWidth = paint.measureText(right);
+
+        float totalWidth = leftWidth + aGap + aWidth + aGap + rightWidth;
+        float x = (DESIGN_W - totalWidth) / 2f;
+
+        paint.setColor(Color.rgb(201, 209, 218));
+        canvas.drawText(left, x, y, paint);
+
+        x += leftWidth + aGap;
         paint.setColor(BLUE);
-        canvas.drawText("A", 672f, y, paint);
+        canvas.drawText("A", x, y, paint);
 
+        x += aWidth + aGap;
         paint.setColor(Color.rgb(201, 209, 218));
-        canvas.drawText("N CORE", 718f, y, paint);
+        canvas.drawText(right, x, y, paint);
     }
 
     private void drawMetricBar(
