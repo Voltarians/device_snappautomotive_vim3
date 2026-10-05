@@ -46,8 +46,8 @@ public final class HomeDashboardView extends View {
     private OnSectionSelectedListener sectionListener;
 
     private final String[] sections = {
-            "HOME", "RADIO", "CLIMATE", "VEHICLE", "ENERGY",
-            "PHONE", "NAV", "APPS", "SETTINGS"
+            "HOME", "RADIO", "CLIMATE", "VEHICLE",
+            "ENERGY", "PHONE", "NAV", "APPS"
     };
 
     public HomeDashboardView(Context context) {
@@ -105,21 +105,21 @@ public final class HomeDashboardView extends View {
 
         Date now = new Date();
         drawText(canvas, dateFormat.format(now).toUpperCase(Locale.getDefault()),
-                64f, 118f, 22f, MUTED, Paint.Align.LEFT, false);
+                64f, 108f, 24f, MUTED, Paint.Align.LEFT, true);
         drawText(canvas, timeFormat.format(now),
-                1216f, 118f, 26f, TEXT, Paint.Align.RIGHT, true);
+                1216f, 108f, 26f, TEXT, Paint.Align.RIGHT, true);
 
         strokePaint.setColor(Color.rgb(41, 64, 82));
         strokePaint.setStrokeWidth(2f);
-        canvas.drawLine(64f, 140f, 1216f, 140f, strokePaint);
+        canvas.drawLine(64f, 130f, 1216f, 130f, strokePaint);
 
         int evMiles = displayEvMiles();
         int fuelMiles = displayFuelMiles();
         int totalMiles = displayTotalMiles();
 
-        drawMetricBar(canvas, "EV RANGE", evMiles + " mi", 64f, 192f, 210f,
+        drawMetricBar(canvas, "EV RANGE", evMiles + " mi", 64f, 180f, 198f,
                 evFraction(), false);
-        drawMetricBar(canvas, "FUEL RANGE", fuelMiles + " mi", 64f, 316f, 334f,
+        drawMetricBar(canvas, "FUEL RANGE", fuelMiles + " mi", 64f, 304f, 322f,
                 fuelFraction(), true);
 
         drawLowerCards(canvas, totalMiles);
@@ -129,36 +129,28 @@ public final class HomeDashboardView extends View {
     }
 
     private void drawLogo(Canvas canvas) {
-        final float y = 68f;
+        final float y = 72f;
 
         paint.setTypeface(Typeface.create("sans-serif", Typeface.BOLD));
-        paint.setTextSize(66f);
+        paint.setTextSize(56f);
         paint.setTextAlign(Paint.Align.LEFT);
         paint.setColor(Color.rgb(201, 209, 218));
-        canvas.drawText("PROMETHE", 400f, y, paint);
+        canvas.drawText("PROMETHE", 378f, y, paint);
 
-        float ax = 724f;
+        float ax = 652f;
         path.reset();
         path.moveTo(ax, y);
-        path.lineTo(ax + 28f, y - 58f);
-        path.lineTo(ax + 56f, y);
-        path.lineTo(ax + 42f, y);
-        path.lineTo(ax + 28f, y - 30f);
-        path.lineTo(ax + 14f, y);
+        path.lineTo(ax + 24f, y - 49f);
+        path.lineTo(ax + 48f, y);
+        path.lineTo(ax + 36f, y);
+        path.lineTo(ax + 24f, y - 25f);
+        path.lineTo(ax + 12f, y);
         path.close();
         paint.setColor(BLUE);
         canvas.drawPath(path, paint);
 
         paint.setColor(Color.rgb(201, 209, 218));
-        canvas.drawText("N", 784f, y, paint);
-
-        paint.setTypeface(Typeface.create("sans-serif", Typeface.NORMAL));
-        paint.setTextSize(28f);
-        paint.setTextAlign(Paint.Align.CENTER);
-        paint.setLetterSpacing(0.22f);
-        paint.setColor(Color.rgb(183, 194, 205));
-        canvas.drawText("C O R E", 640f, 101f, paint);
-        paint.setLetterSpacing(0f);
+        canvas.drawText("N CORE", 706f, y, paint);
     }
 
     private void drawMetricBar(
@@ -210,7 +202,7 @@ public final class HomeDashboardView extends View {
     }
 
     private void drawLowerCards(Canvas canvas, int totalMiles) {
-        float top = 430f;
+        float top = 418f;
 
         drawText(canvas, "12V SYSTEM", 64f, top, 22f, MUTED, Paint.Align.LEFT, true);
         drawFancyBar(canvas, 64f, top + 18f, 430f, 44f, voltageFraction(), false);
@@ -232,18 +224,18 @@ public final class HomeDashboardView extends View {
 
         int ev = displayEvMiles();
         int fuel = displayFuelMiles();
-        float combined = Math.max(1f, ev + fuel);
-        float fillTotal = Math.min(0.78f, (ev + fuel) / 450f);
+        float fillTotal = Math.min(0.92f, (ev + fuel) / 450f);
         float fillW = (w - 12f) * fillTotal;
-        float evW = fillW * (ev / combined);
 
-        paint.setColor(Color.rgb(32, 167, 238));
-        canvas.drawRoundRect(new RectF(x + 6f, y + 6f, x + 6f + evW, y + h - 6f),
-                9f, 9f, paint);
-        paint.setColor(Color.rgb(39, 142, 216));
-        canvas.drawRect(x + 6f + evW, y + 6f, x + 6f + fillW, y + h - 6f, paint);
+        if (fillW > 2f) {
+            paint.setShader(new LinearGradient(
+                    x + 6f, y + 6f, x + 6f + fillW, y + 6f,
+                    Color.rgb(11, 111, 200), BLUE_LIGHT, Shader.TileMode.CLAMP));
+            canvas.drawRoundRect(
+                    new RectF(x + 6f, y + 6f, x + 6f + fillW, y + h - 6f),
+                    9f, 9f, paint);
+            paint.setShader(null);
 
-        if (fillW > 10f) {
             paint.setColor(Color.argb(95, 215, 243, 255));
             canvas.drawRoundRect(
                     new RectF(x + 10f, y + 9f, x + 4f + fillW, y + 13f),
@@ -285,19 +277,19 @@ public final class HomeDashboardView extends View {
         strokePaint.setStrokeWidth(2f);
         canvas.drawLine(0f, top, DESIGN_W, top, strokePaint);
 
-        float[] centers = {76f, 217f, 358f, 499f, 640f, 781f, 922f, 1063f, 1204f};
-        String[] labels = {"HOME", "AUDIO", "CLIMATE", "VEHICLE", "ENERGY",
-                "PHONE", "NAV", "APPS", "SETTINGS"};
+        float step = DESIGN_W / 8f;
+        String[] labels = {"HOME", "AUDIO", "CLIMATE", "VEHICLE",
+                "ENERGY", "PHONE", "NAV", "APPS"};
 
-        for (int i = 0; i < centers.length; i++) {
-            float cx = centers[i];
+        for (int i = 0; i < labels.length; i++) {
+            float cx = step * (i + 0.5f);
             if (i == 0) {
                 paint.setColor(Color.rgb(13, 33, 48));
-                canvas.drawRoundRect(new RectF(cx - 58f, top + 8f, cx + 58f, top + 96f),
+                canvas.drawRoundRect(new RectF(cx - 52f, top + 8f, cx + 52f, top + 94f),
                         18f, 18f, paint);
                 strokePaint.setColor(BLUE);
                 strokePaint.setStrokeWidth(2f);
-                canvas.drawRoundRect(new RectF(cx - 58f, top + 8f, cx + 58f, top + 96f),
+                canvas.drawRoundRect(new RectF(cx - 52f, top + 8f, cx + 52f, top + 94f),
                         18f, 18f, strokePaint);
             }
 
@@ -337,16 +329,27 @@ public final class HomeDashboardView extends View {
                 canvas.drawCircle(cx - 18f, cy + 22f, 11f, strokePaint);
                 canvas.drawCircle(cx + 13f, cy + 14f, 11f, strokePaint);
                 break;
-            case 2: // climate
-                canvas.drawCircle(cx, cy, 8f, strokePaint);
+            case 2: // climate fan
+                canvas.drawCircle(cx, cy, 6f, strokePaint);
                 for (int k = 0; k < 4; k++) {
                     double a = Math.PI / 2 * k;
-                    float x1 = cx + (float)Math.cos(a) * 16f;
-                    float y1 = cy + (float)Math.sin(a) * 16f;
-                    float x2 = cx + (float)Math.cos(a) * 29f;
-                    float y2 = cy + (float)Math.sin(a) * 29f;
-                    canvas.drawLine(x1, y1, x2, y2, strokePaint);
-                    canvas.drawCircle(x2, y2, 7f, strokePaint);
+                    float dx = (float)Math.cos(a);
+                    float dy = (float)Math.sin(a);
+                    float px = -dy;
+                    float py = dx;
+                    path.reset();
+                    path.moveTo(cx + dx * 8f, cy + dy * 8f);
+                    path.quadTo(
+                            cx + dx * 25f + px * 12f,
+                            cy + dy * 25f + py * 12f,
+                            cx + dx * 30f,
+                            cy + dy * 30f);
+                    path.quadTo(
+                            cx + dx * 19f - px * 8f,
+                            cy + dy * 19f - py * 8f,
+                            cx + dx * 8f,
+                            cy + dy * 8f);
+                    canvas.drawPath(path, strokePaint);
                 }
                 break;
             case 3: // vehicle
@@ -407,17 +410,7 @@ public final class HomeDashboardView extends View {
                     }
                 }
                 break;
-            default: // settings
-                canvas.drawCircle(cx, cy, 12f, strokePaint);
-                canvas.drawCircle(cx, cy, 27f, strokePaint);
-                for (int k = 0; k < 8; k++) {
-                    double a = Math.PI / 4 * k;
-                    float x1 = cx + (float)Math.cos(a) * 27f;
-                    float y1 = cy + (float)Math.sin(a) * 27f;
-                    float x2 = cx + (float)Math.cos(a) * 35f;
-                    float y2 = cy + (float)Math.sin(a) * 35f;
-                    canvas.drawLine(x1, y1, x2, y2, strokePaint);
-                }
+            default:
                 break;
         }
     }
@@ -500,7 +493,7 @@ public final class HomeDashboardView extends View {
         float y = event.getY() * DESIGN_H / Math.max(1f, getHeight());
 
         if (y >= 590f) {
-            int index = Math.min(8, Math.max(0, (int)(x / (DESIGN_W / 9f))));
+            int index = Math.min(7, Math.max(0, (int)(x / (DESIGN_W / 8f))));
             if (sectionListener != null) {
                 sectionListener.onSectionSelected(sections[index]);
             }
