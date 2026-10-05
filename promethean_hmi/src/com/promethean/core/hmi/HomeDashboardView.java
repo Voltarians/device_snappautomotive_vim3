@@ -136,14 +136,14 @@ public final class HomeDashboardView extends View {
         paint.setTextAlign(Paint.Align.LEFT);
 
         paint.setColor(Color.rgb(201, 209, 218));
-        canvas.drawText("PROMETHE", 378f, y, paint);
+        canvas.drawText("PROMETHE", 350f, y, paint);
 
-        // Use the real font glyph for A so the wordmark stays clean and aligned.
+        // Keep explicit spacing around the blue A so it does not collide with E or N.
         paint.setColor(BLUE);
-        canvas.drawText("A", 652f, y, paint);
+        canvas.drawText("A", 672f, y, paint);
 
         paint.setColor(Color.rgb(201, 209, 218));
-        canvas.drawText("N CORE", 690f, y, paint);
+        canvas.drawText("N CORE", 718f, y, paint);
     }
 
     private void drawMetricBar(
