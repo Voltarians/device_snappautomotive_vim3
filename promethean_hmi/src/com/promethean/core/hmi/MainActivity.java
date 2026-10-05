@@ -36,7 +36,7 @@ public final class MainActivity extends Activity {
     private TextView tripTile;
     private TextView climateTile;
     private TextView audioTile;
-    private GridLayout homeGrid;
+    private HomeDashboardView homeGrid;
     private LinearLayout energyContent;
     private PowerFlowView powerFlowView;
     private LinearLayout chargingContent;
@@ -157,15 +157,7 @@ public final class MainActivity extends Activity {
         bindButton(R.id.nav_climate, "CLIMATE");
         bindButton(R.id.nav_apps, "APPS");
         bindButton(R.id.nav_settings, "SETTINGS");
-        bindButton(R.id.home_tile_energy, "ENERGY");
-        bindButton(R.id.home_tile_climate, "CLIMATE");
-        bindButton(R.id.home_tile_radio, "RADIO");
-        bindButton(R.id.home_tile_apps, "APPS");
-        bindButton(R.id.home_tile_phone, "PHONE");
-        bindButton(R.id.home_tile_nav, "NAV");
-        bindButton(R.id.home_tile_vehicle, "VEHICLE");
-        bindButton(R.id.home_tile_charging, "CHARGING");
-        bindButton(R.id.home_tile_settings, "SETTINGS");
+        homeGrid.setOnSectionSelectedListener(this::selectSection);
         vehicleView.setOnTwelveVoltSelectedListener(this::showTwelveVolt);
     }
 
@@ -488,7 +480,7 @@ public final class MainActivity extends Activity {
         tripTile.setText(state.tripSummary);
         climateTile.setText(state.climateSummary);
         audioTile.setText(state.audioSummary);
-        powerFlowView.setVehicleState(state);
+        homeGrid.setVehicleState(state);\n        powerFlowView.setVehicleState(state);
         chargingView.setVehicleState(state);
         climateView.setVehicleState(state);
         vehicleView.setVehicleState(state);
