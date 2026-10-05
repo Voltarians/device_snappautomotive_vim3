@@ -480,7 +480,8 @@ public final class MainActivity extends Activity {
         tripTile.setText(state.tripSummary);
         climateTile.setText(state.climateSummary);
         audioTile.setText(state.audioSummary);
-        homeGrid.setVehicleState(state);\n        powerFlowView.setVehicleState(state);
+        homeGrid.setVehicleState(state);
+        powerFlowView.setVehicleState(state);
         chargingView.setVehicleState(state);
         climateView.setVehicleState(state);
         vehicleView.setVehicleState(state);
