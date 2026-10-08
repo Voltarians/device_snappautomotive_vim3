@@ -70,8 +70,9 @@
 
         <LinearLayout
             android:id="@+id/side_nav"
-            android:layout_width="175dp"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:visibility="gone"
             android:orientation="vertical">
 
             <Button android:id="@+id/nav_home" style="@style/SidebarButton" android:drawableStart="@drawable/ic_home" android:text="HOME" />
@@ -90,7 +91,7 @@
             android:id="@+id/center_panel"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="0dp"
             android:layout_weight="1"
             android:background="@drawable/panel_background"
             android:orientation="vertical"
@@ -131,6 +132,20 @@
 
                 <com.promethean.core.hmi.PowerFlowView
                     android:id="@+id/power_flow_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/drivetrain_content"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <com.promethean.core.hmi.VoltecDrivetrainView
+                    android:id="@+id/drivetrain_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
             </LinearLayout>
@@ -292,32 +307,156 @@
         android:id="@+id/bottom_quick_bar"
         android:layout_width="match_parent"
         android:layout_height="92dp"
-        android:orientation="horizontal">
+        android:background="#071017"
+        android:orientation="horizontal"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp">
 
-        <LinearLayout style="@style/QuickTile" android:orientation="vertical">
-            <TextView style="@style/PanelTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CHARGING" />
-            <TextView android:id="@+id/charging_tile_value" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Charge Mode: Immediately" android:textColor="@color/text_primary" android:textSize="15sp" android:textStyle="bold" />
-        </LinearLayout>
+        <Button
+            android:id="@+id/bottom_nav_home"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/ic_home"
+            android:drawableTint="@color/volt_cyan"
+            android:gravity="center"
+            android:padding="4dp"
+            android:text="HOME"
+            android:textAllCaps="false"
+            android:textColor="@color/text_primary"
+            android:textSize="12sp" />
 
-        <Space android:layout_width="8dp" android:layout_height="1dp" />
+        <Button
+            android:id="@+id/bottom_nav_audio"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/ic_radio"
+            android:drawableTint="@color/volt_cyan"
+            android:gravity="center"
+            android:padding="4dp"
+            android:text="AUDIO"
+            android:textAllCaps="false"
+            android:textColor="@color/text_primary"
+            android:textSize="12sp" />
 
-        <LinearLayout style="@style/QuickTile" android:orientation="vertical">
-            <TextView style="@style/PanelTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="TRIP INFO" />
-            <TextView android:id="@+id/trip_tile_value" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="6.1 mi • 8.0 mi • 0.30 gal" android:textColor="@color/text_primary" android:textSize="15sp" android:textStyle="bold" />
-        </LinearLayout>
+        <Button
+            android:id="@+id/bottom_nav_climate"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/ic_climate"
+            android:drawableTint="@color/volt_cyan"
+            android:gravity="center"
+            android:padding="4dp"
+            android:text="CLIMATE"
+            android:textAllCaps="false"
+            android:textColor="@color/text_primary"
+            android:textSize="12sp" />
 
-        <Space android:layout_width="8dp" android:layout_height="1dp" />
+        <Button
+            android:id="@+id/bottom_nav_vehicle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/ic_vehicle"
+            android:drawableTint="@color/volt_cyan"
+            android:gravity="center"
+            android:padding="4dp"
+            android:text="VEHICLE"
+            android:textAllCaps="false"
+            android:textColor="@color/text_primary"
+            android:textSize="12sp" />
 
-        <LinearLayout style="@style/QuickTile" android:orientation="vertical">
-            <TextView style="@style/PanelTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CLIMATE" />
-            <TextView android:id="@+id/climate_tile_value" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="AUTO 72°" android:textColor="@color/text_primary" android:textSize="18sp" android:textStyle="bold" />
-        </LinearLayout>
+        <Button
+            android:id="@+id/bottom_nav_energy"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/ic_energy"
+            android:drawableTint="@color/volt_cyan"
+            android:gravity="center"
+            android:padding="4dp"
+            android:text="ENERGY"
+            android:textAllCaps="false"
+            android:textColor="@color/text_primary"
+            android:textSize="12sp" />
 
-        <Space android:layout_width="8dp" android:layout_height="1dp" />
+        <Button
+            android:id="@+id/bottom_nav_phone"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/ic_phone"
+            android:drawableTint="@color/volt_cyan"
+            android:gravity="center"
+            android:padding="4dp"
+            android:text="PHONE"
+            android:textAllCaps="false"
+            android:textColor="@color/text_primary"
+            android:textSize="12sp" />
 
-        <LinearLayout style="@style/QuickTile" android:orientation="vertical">
-            <TextView style="@style/PanelTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="RADIO" />
-            <TextView android:id="@+id/audio_tile_value" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="XM1 Ch 2 • SiriusXM Preview" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
-        </LinearLayout>
+        <Button
+            android:id="@+id/bottom_nav_nav"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/ic_nav"
+            android:drawableTint="@color/volt_cyan"
+            android:gravity="center"
+            android:padding="4dp"
+            android:text="NAV"
+            android:textAllCaps="false"
+            android:textColor="@color/text_primary"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/bottom_nav_apps"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/ic_apps"
+            android:drawableTint="@color/volt_cyan"
+            android:gravity="center"
+            android:padding="4dp"
+            android:text="APPS"
+            android:textAllCaps="false"
+            android:textColor="@color/text_primary"
+            android:textSize="12sp" />
+
+        <!-- Existing IDs retained invisibly for current render() code. -->
+        <TextView
+            android:id="@+id/charging_tile_value"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/trip_tile_value"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/climate_tile_value"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/audio_tile_value"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone" />
+
     </LinearLayout>
+
 </LinearLayout>

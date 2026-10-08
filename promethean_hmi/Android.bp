@@ -3,6 +3,6 @@ android_app {
     srcs: ["src/**/*.java"],
     resource_dirs: ["res"],
     manifest: "AndroidManifest.xml",
-    platform_apis: true,
+    sdk_version: "35",
     certificate: "platform",
 }

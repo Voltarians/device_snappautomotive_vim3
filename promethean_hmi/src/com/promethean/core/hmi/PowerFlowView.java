@@ -11,7 +11,7 @@ import android.view.View;
 import java.util.Locale;
 
 public final class PowerFlowView extends View {
-    private static final int COLOR_BG = 0xFF070D10;
+    private static final int COLOR_BG = 0xFF000000;
     private static final int COLOR_PANEL = 0xFF10181D;
     private static final int COLOR_STROKE = 0xFF27414A;
     private static final int COLOR_TEXT = 0xFFF2F7F8;
@@ -22,6 +22,7 @@ public final class PowerFlowView extends View {
 
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Path path = new Path();
+    private final NeonVoltBody voltBody = new NeonVoltBody();
 
     private VehicleState state = new DemoVehicleDataSource().read();
     private float phase = 0f;
@@ -83,65 +84,36 @@ public final class PowerFlowView extends View {
     }
 
     private void drawGen1PowerFlow(Canvas canvas, float w, float h) {
-        // Reserve the lower portion for live diagnostics.
+        // Fit the approved SVG into the artwork area, keeping its true aspect
+        // ratio and leaving the lower live metrics and mode label unobstructed.
         float diagramBottom = h - dp(178);
         float diagramTop = dp(14);
-        float diagramH = Math.max(dp(190), diagramBottom - diagramTop);
-
-        // Deep blue halo similar to the original Gen-1 center-stack display.
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(0xFF07111B);
-        canvas.drawRect(0, diagramTop, w, diagramBottom, paint);
-
-        for (int i = 5; i >= 1; i--) {
-            int alpha = 10 + i * 7;
-            paint.setColor((alpha << 24) | 0x001E5A8A);
-            float inset = dp(i * 9);
-            RectF glow = new RectF(
-                    w * 0.08f + inset,
-                    diagramTop + inset,
-                    w * 0.92f - inset,
-                    diagramBottom - inset);
-            canvas.drawOval(glow, paint);
+        float diagramH = diagramBottom - diagramTop;
+        float scale = Math.min((w - dp(36)) / 641f, (diagramH - dp(42)) / 250f);
+        if (scale <= 0f) {
+            return;
         }
+        float graphicLeft = (w - 641f * scale) / 2f;
+        float graphicTop = diagramTop + (diagramH - dp(42) - 250f * scale) / 2f;
 
-        // Enlarge the entire side-view graphic without changing the tuned
-        // component proportions or spacing relationships.
-        final float graphicScale = 1.45f;
-        final float graphicCenterX = w * 0.52f;
-
-        float baseBattCx = w * 0.56f;
-        float battCx = graphicCenterX
-                + (baseBattCx - graphicCenterX) * graphicScale;
-
-        // Side-view wheel baseline.
-        float wheelY = diagramTop + diagramH * 0.60f;
-
-        // Preserve the established proportions while scaling the whole graphic.
-        float battW = Math.min(w * 0.40f, dp(390)) * 0.40f * graphicScale;
-        float battH = Math.min(diagramH * 0.28f, dp(112)) * 0.40f * graphicScale;
-        float engineW = w * 0.13f * 0.72f * graphicScale;
-        float engineH = diagramH * 0.20f * 0.72f * graphicScale;
-
-        // Keep the engine and battery on the same tuned bottom baseline.
-        float componentBottom = wheelY + dp(14.5f) * graphicScale;
+        // The source body has no static wheels: retain the HMI's foreground
+        // wheels, aligned to the source wheel arches, and its state-driven art.
+        float frontWheelX = graphicLeft + 136f * scale;
+        float rearWheelX = graphicLeft + 529f * scale;
+        float wheelY = graphicTop + 185f * scale;
+        float rearWheelY = graphicTop + 184f * scale;
+        float wheelRadius = 46f * scale;
+        float graphicScale = scale;
+        float battCx = graphicLeft + 385f * scale;
+        float battW = 160f * scale;
+        float battH = 45f * scale;
+        float engineW = 60f * scale;
+        float engineH = 65f * scale;
+        float componentBottom = wheelY + 14.5f * scale;
         float battCy = componentBottom - battH / 2f;
         float engineCy = componentBottom - engineH / 2f;
 
-        float baseFrontWheelX = w * 0.41f;
-        float frontWheelX = graphicCenterX
-                + (baseFrontWheelX - graphicCenterX) * graphicScale;
-
-        float baseBattW = Math.min(w * 0.40f, dp(390)) * 0.40f;
-        float baseRearWheelX = baseBattCx + baseBattW * 0.50f - dp(8);
-        float rearWheelX = graphicCenterX
-                + (baseRearWheelX - graphicCenterX) * graphicScale;
-
-        float wheelRadius = dp(38) * graphicScale;
-
-        // Draw a stylized Gen-1 Volt side body behind the drivetrain art.
-        drawVoltBody(canvas, frontWheelX, rearWheelX, wheelY, wheelRadius,
-                diagramTop, diagramH);
+        voltBody.draw(canvas, graphicLeft, graphicTop, scale);
 
         drawGen1Battery(canvas, battCx, battCy, battW, battH);
 
@@ -151,7 +123,7 @@ public final class PowerFlowView extends View {
 
         // Wheels are the foreground layer.
         drawGen1Wheel(canvas, frontWheelX, wheelY, wheelRadius);
-        drawGen1Wheel(canvas, rearWheelX, wheelY, wheelRadius);
+        drawGen1Wheel(canvas, rearWheelX, rearWheelY, wheelRadius);
 
         // Neutral flow paths until signed propulsion/regen power is validated.
         paint.setStyle(Paint.Style.STROKE);
@@ -173,136 +145,6 @@ public final class PowerFlowView extends View {
         paint.setColor(COLOR_TEXT);
         canvas.drawText(mode, w * 0.52f, diagramBottom - dp(14), paint);
         paint.setTextAlign(Paint.Align.LEFT);
-    }
-
-    private void drawVoltBody(Canvas canvas,
-                              float frontWheelX,
-                              float rearWheelX,
-                              float wheelY,
-                              float wheelRadius,
-                              float diagramTop,
-                              float diagramH) {
-        // First-generation Chevrolet Volt side profile, front to the left.
-        // Proportions are based on a true side view: long low nose, wheels
-        // pushed toward the corners, a low arcing roof and a short hatch tail.
-        float wheelbase = rearWheelX - frontWheelX;
-        float noseX = frontWheelX - wheelbase * 0.36f;
-        float tailX = rearWheelX + wheelbase * 0.30f;
-
-        float rockerY = wheelY + wheelRadius * 0.67f;
-        float hoodY = wheelY - wheelRadius * 0.58f;
-        float beltY = wheelY - wheelRadius * 0.72f;
-        float roofY = wheelY - wheelRadius * 1.92f;
-
-        path.reset();
-
-        // Front fascia and long, nearly horizontal hood.
-        path.moveTo(noseX, rockerY - wheelRadius * 0.18f);
-        path.quadTo(noseX - wheelRadius * 0.02f,
-                hoodY + wheelRadius * 0.34f,
-                noseX + wheelbase * 0.10f,
-                hoodY + wheelRadius * 0.18f);
-        path.lineTo(frontWheelX - wheelRadius * 0.62f, hoodY);
-
-        // Hood to A-pillar.
-        path.quadTo(frontWheelX - wheelRadius * 0.18f,
-                hoodY - wheelRadius * 0.10f,
-                frontWheelX + wheelRadius * 0.08f,
-                hoodY - wheelRadius * 0.18f);
-        path.lineTo(frontWheelX + wheelbase * 0.20f,
-                roofY + wheelRadius * 0.44f);
-
-        // Roof arc.
-        path.quadTo(frontWheelX + wheelbase * 0.32f,
-                roofY,
-                frontWheelX + wheelbase * 0.47f,
-                roofY);
-        path.quadTo(frontWheelX + wheelbase * 0.69f,
-                roofY + wheelRadius * 0.02f,
-                rearWheelX - wheelbase * 0.16f,
-                roofY + wheelRadius * 0.18f);
-
-        // Volt's sloping hatch / rear sail panel.
-        path.quadTo(rearWheelX + wheelbase * 0.02f,
-                roofY + wheelRadius * 0.40f,
-                rearWheelX + wheelbase * 0.15f,
-                beltY + wheelRadius * 0.08f);
-        path.lineTo(tailX - wheelbase * 0.04f,
-                beltY + wheelRadius * 0.26f);
-        path.quadTo(tailX,
-                beltY + wheelRadius * 0.38f,
-                tailX,
-                rockerY - wheelRadius * 0.12f);
-
-        // Rear lower body into the rear wheel arch.
-        path.lineTo(rearWheelX + wheelRadius * 1.02f, rockerY);
-        path.quadTo(rearWheelX + wheelRadius * 0.92f,
-                wheelY - wheelRadius * 0.88f,
-                rearWheelX,
-                wheelY - wheelRadius * 1.03f);
-        path.quadTo(rearWheelX - wheelRadius * 0.92f,
-                wheelY - wheelRadius * 0.88f,
-                rearWheelX - wheelRadius * 1.02f,
-                rockerY);
-
-        // Rocker panel between the wheels.
-        path.lineTo(frontWheelX + wheelRadius * 1.02f, rockerY);
-
-        // Front wheel arch.
-        path.quadTo(frontWheelX + wheelRadius * 0.92f,
-                wheelY - wheelRadius * 0.88f,
-                frontWheelX,
-                wheelY - wheelRadius * 1.03f);
-        path.quadTo(frontWheelX - wheelRadius * 0.92f,
-                wheelY - wheelRadius * 0.88f,
-                frontWheelX - wheelRadius * 1.02f,
-                rockerY);
-
-        // Lower front bumper back to the nose.
-        path.lineTo(noseX + wheelbase * 0.05f, rockerY);
-        path.close();
-
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(0x2419A9D8);
-        canvas.drawPath(path, paint);
-
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(dp(2.2f));
-        paint.setStrokeCap(Paint.Cap.ROUND);
-        paint.setStrokeJoin(Paint.Join.ROUND);
-        paint.setColor(0xFF4E8FA8);
-        canvas.drawPath(path, paint);
-
-        // The Gen-1 Volt's dark greenhouse is one of its strongest profile cues.
-        path.reset();
-        float windshieldBaseX = frontWheelX + wheelbase * 0.18f;
-        float windshieldTopX = frontWheelX + wheelbase * 0.30f;
-        float hatchTopX = rearWheelX - wheelbase * 0.18f;
-        float hatchBaseX = rearWheelX + wheelbase * 0.08f;
-
-        path.moveTo(windshieldBaseX, beltY);
-        path.lineTo(windshieldTopX, roofY + wheelRadius * 0.22f);
-        path.quadTo(frontWheelX + wheelbase * 0.46f,
-                roofY + wheelRadius * 0.06f,
-                hatchTopX,
-                roofY + wheelRadius * 0.22f);
-        path.lineTo(hatchBaseX, beltY);
-        path.close();
-
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(0x55243138);
-        canvas.drawPath(path, paint);
-
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(dp(1.6f));
-        paint.setColor(0xAA88C8DE);
-        canvas.drawPath(path, paint);
-
-        // Black beltline / window sill.
-        paint.setColor(0xCC24343B);
-        paint.setStrokeWidth(dp(3.0f));
-        canvas.drawLine(windshieldBaseX, beltY,
-                hatchBaseX, beltY, paint);
     }
 
     private void drawGen1Battery(Canvas canvas,

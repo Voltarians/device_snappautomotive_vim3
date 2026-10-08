@@ -38,6 +38,8 @@ public final class MainActivity extends Activity {
     private HomeDashboardView homeGrid;
     private LinearLayout energyContent;
     private PowerFlowView powerFlowView;
+    private LinearLayout drivetrainContent;
+    private VoltecDrivetrainView drivetrainView;
     private LinearLayout chargingContent;
     private ChargingView chargingView;
     private LinearLayout climateContent;
@@ -120,6 +122,8 @@ public final class MainActivity extends Activity {
         homeGrid = findViewById(R.id.home_grid);
         energyContent = findViewById(R.id.energy_content);
         powerFlowView = findViewById(R.id.power_flow_view);
+        drivetrainContent = findViewById(R.id.drivetrain_content);
+        drivetrainView = findViewById(R.id.drivetrain_view);
         chargingContent = findViewById(R.id.charging_content);
         chargingView = findViewById(R.id.charging_view);
         climateContent = findViewById(R.id.climate_content);
@@ -156,6 +160,16 @@ public final class MainActivity extends Activity {
         bindButton(R.id.nav_climate, "CLIMATE");
         bindButton(R.id.nav_apps, "APPS");
         bindButton(R.id.nav_settings, "SETTINGS");
+
+        // Global bottom navigation.
+        bindButton(R.id.bottom_nav_home, "HOME");
+        bindButton(R.id.bottom_nav_audio, "RADIO");
+        bindButton(R.id.bottom_nav_climate, "CLIMATE");
+        bindButton(R.id.bottom_nav_vehicle, "VEHICLE");
+        bindButton(R.id.bottom_nav_energy, "ENERGY");
+        bindButton(R.id.bottom_nav_phone, "PHONE");
+        bindButton(R.id.bottom_nav_nav, "NAV");
+        bindButton(R.id.bottom_nav_apps, "APPS");
         homeGrid.setOnSectionSelectedListener(this::selectSection);
         appsView.setOnSettingsSelectedListener(this::showSettings);
         vehicleView.setOnTwelveVoltSelectedListener(this::showTwelveVolt);
@@ -172,7 +186,11 @@ public final class MainActivity extends Activity {
             return;
         }
         if ("ENERGY".equals(section)) {
-            showEnergy();
+            if (energyContent.getVisibility() == View.VISIBLE) {
+                showDrivetrain();
+            } else {
+                showEnergy();
+            }
             return;
         }
         if ("CHARGING".equals(section)) {
@@ -210,6 +228,7 @@ public final class MainActivity extends Activity {
         showCategoryChrome();
         homeGrid.setVisibility(View.GONE);
         energyContent.setVisibility(View.GONE);
+        drivetrainContent.setVisibility(View.GONE);
         chargingContent.setVisibility(View.GONE);
         climateContent.setVisibility(View.GONE);
         radioContent.setVisibility(View.GONE);
@@ -259,6 +278,7 @@ public final class MainActivity extends Activity {
         screenSubtitle.setVisibility(View.GONE);
         homeGrid.setVisibility(View.VISIBLE);
         energyContent.setVisibility(View.GONE);
+        drivetrainContent.setVisibility(View.GONE);
         chargingContent.setVisibility(View.GONE);
         climateContent.setVisibility(View.GONE);
         radioContent.setVisibility(View.GONE);
@@ -279,6 +299,7 @@ public final class MainActivity extends Activity {
         showCategoryChrome();
         homeGrid.setVisibility(View.GONE);
         energyContent.setVisibility(View.VISIBLE);
+        drivetrainContent.setVisibility(View.GONE);
         chargingContent.setVisibility(View.GONE);
         climateContent.setVisibility(View.GONE);
         radioContent.setVisibility(View.GONE);
@@ -289,6 +310,24 @@ public final class MainActivity extends Activity {
         settingsContent.setVisibility(View.GONE);
         screenTitle.setText("POWER FLOW");
         screenSubtitle.setText("Electric Drive");
+    }
+
+    private void showDrivetrain() {
+        showCategoryChrome();
+        homeGrid.setVisibility(View.GONE);
+        energyContent.setVisibility(View.GONE);
+        drivetrainContent.setVisibility(View.VISIBLE);
+        chargingContent.setVisibility(View.GONE);
+        climateContent.setVisibility(View.GONE);
+        radioContent.setVisibility(View.GONE);
+        vehicleContent.setVisibility(View.GONE);
+        twelveVoltContent.setVisibility(View.GONE);
+        phoneContent.setVisibility(View.GONE);
+        navContent.setVisibility(View.GONE);
+        appsContent.setVisibility(View.GONE);
+        settingsContent.setVisibility(View.GONE);
+        screenTitle.setText("VOLTEC DRIVETRAIN");
+        screenSubtitle.setText("4ET50 / MKA • Planetary Gearset + Clutch State");
     }
 
     private void showCharging() {
@@ -311,6 +350,7 @@ public final class MainActivity extends Activity {
         showCategoryChrome();
         homeGrid.setVisibility(View.GONE);
         energyContent.setVisibility(View.GONE);
+        drivetrainContent.setVisibility(View.GONE);
         chargingContent.setVisibility(View.GONE);
         climateContent.setVisibility(View.VISIBLE);
         radioContent.setVisibility(View.GONE);
@@ -337,6 +377,7 @@ public final class MainActivity extends Activity {
         showCategoryChrome();
         homeGrid.setVisibility(View.GONE);
         energyContent.setVisibility(View.GONE);
+        drivetrainContent.setVisibility(View.GONE);
         chargingContent.setVisibility(View.GONE);
         climateContent.setVisibility(View.GONE);
         radioContent.setVisibility(View.VISIBLE);
@@ -365,6 +406,7 @@ public final class MainActivity extends Activity {
         showCategoryChrome();
         homeGrid.setVisibility(View.GONE);
         energyContent.setVisibility(View.GONE);
+        drivetrainContent.setVisibility(View.GONE);
         chargingContent.setVisibility(View.GONE);
         climateContent.setVisibility(View.GONE);
         radioContent.setVisibility(View.GONE);
@@ -389,6 +431,7 @@ public final class MainActivity extends Activity {
         showCategoryChrome();
         homeGrid.setVisibility(View.GONE);
         energyContent.setVisibility(View.GONE);
+        drivetrainContent.setVisibility(View.GONE);
         chargingContent.setVisibility(View.GONE);
         climateContent.setVisibility(View.GONE);
         radioContent.setVisibility(View.GONE);
@@ -405,6 +448,7 @@ public final class MainActivity extends Activity {
         showCategoryChrome();
         homeGrid.setVisibility(View.GONE);
         energyContent.setVisibility(View.GONE);
+        drivetrainContent.setVisibility(View.GONE);
         chargingContent.setVisibility(View.GONE);
         climateContent.setVisibility(View.GONE);
         radioContent.setVisibility(View.GONE);
@@ -421,6 +465,7 @@ public final class MainActivity extends Activity {
         showCategoryChrome();
         homeGrid.setVisibility(View.GONE);
         energyContent.setVisibility(View.GONE);
+        drivetrainContent.setVisibility(View.GONE);
         chargingContent.setVisibility(View.GONE);
         climateContent.setVisibility(View.GONE);
         radioContent.setVisibility(View.GONE);
@@ -437,6 +482,7 @@ public final class MainActivity extends Activity {
         showCategoryChrome();
         homeGrid.setVisibility(View.GONE);
         energyContent.setVisibility(View.GONE);
+        drivetrainContent.setVisibility(View.GONE);
         chargingContent.setVisibility(View.GONE);
         climateContent.setVisibility(View.GONE);
         radioContent.setVisibility(View.GONE);
@@ -451,16 +497,16 @@ public final class MainActivity extends Activity {
 
     private void showCategoryChrome() {
         twelveVoltContent.setVisibility(View.GONE);
-        topBar.setVisibility(View.VISIBLE);
-        sideNav.setVisibility(View.VISIBLE);
+        topBar.setVisibility(View.GONE);
+        sideNav.setVisibility(View.GONE);
         rightInfoPanel.setVisibility(View.GONE);
-        bottomQuickBar.setVisibility(View.GONE);
+        bottomQuickBar.setVisibility(View.VISIBLE);
         screenTitle.setVisibility(View.VISIBLE);
         screenSubtitle.setVisibility(View.VISIBLE);
 
         LinearLayout.LayoutParams params =
                 (LinearLayout.LayoutParams) centerPanel.getLayoutParams();
-        params.setMarginStart(dp(12));
+        params.setMarginStart(0);
         centerPanel.setLayoutParams(params);
     }
 

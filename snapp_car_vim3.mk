@@ -176,7 +176,7 @@ PRODUCT_COPY_FILES += \
 PRODUCT_NAME := snapp_car_vim3
 PRODUCT_CHARACTERISTICS := automotive
 ifeq ($(SNAPP_MODEL),)
-PRODUCT_MODEL := Snapp Automotive build of Android Automotive OS for VIM3
+PRODUCT_MODEL := Promethean Core
 else
 PRODUCT_MODEL := $(SNAPP_MODEL)
 endif
