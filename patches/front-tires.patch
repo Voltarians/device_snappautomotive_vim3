@@ -1,0 +1,130 @@
+--- a/promethean_hmi/src/com/promethean/core/hmi/VoltecDrivetrainView.java
++++ b/promethean_hmi/src/com/promethean/core/hmi/VoltecDrivetrainView.java
+@@ -28,7 +28,6 @@
+     private float ringAngle;
+     private float carrierAngle;
+     private float planetSpinAngle;
+-    private float wheelAngle;
+ 
+     // Temporary demonstration state. These will be replaced by PCG-1 state.
+     private float sunRpm = 2400f;
+@@ -206,8 +205,6 @@
+         planetSpinAngle =
+                 wrap(planetSpinAngle + rpmToDegrees(planetSpinRpm, dt));
+ 
+-        wheelAngle =
+-                wrap(wheelAngle + rpmToDegrees(carrierRpm / 7.0f, dt));
+     }
+ 
+     private void drawDrivetrain(Canvas c) {
+@@ -582,7 +579,7 @@
+ 
+         // Carrier -> final drive.
+         // Differential and front wheels are arranged vertically on the left.
+-        // Each wheel remains 66dp wide x 32dp tall, so its long axis is
++        // Each tire is 76dp wide x 40dp tall, so its long axis is
+         // horizontal on the display.
+ 
+         float diffX = w * 0.47f - ringRadius - dp(165);
+@@ -625,12 +622,12 @@
+         // Upper half-shaft.
+         stroke.setColor(upperShaftColor);
+         c.drawLine(diffX, diffY - dp(31),
+-                wheelX, upperWheelY + dp(16), stroke);
++                wheelX, upperWheelY + dp(20), stroke);
+ 
+         // Lower half-shaft.
+         stroke.setColor(lowerShaftColor);
+         c.drawLine(diffX, diffY + dp(31),
+-                wheelX, lowerWheelY - dp(16), stroke);
++                wheelX, lowerWheelY - dp(20), stroke);
+ 
+         // CV-joint markers follow each shaft state.
+         paint.setStyle(Paint.Style.FILL);
+@@ -642,10 +639,10 @@
+         c.drawCircle(diffX, diffY + dp(42), dp(5), paint);
+ 
+         // Front wheels.
+-        drawWheel(c, wheelX, upperWheelY, wheelAngle,
++        drawWheel(c, wheelX, upperWheelY,
+                 upperWheelBraked, upperShaftColor, red, white);
+ 
+-        drawWheel(c, wheelX, lowerWheelY, wheelAngle,
++        drawWheel(c, wheelX, lowerWheelY,
+                 lowerWheelBraked, lowerShaftColor, red, white);
+ 
+         // Keep wheel/shaft labels outside the mechanism.
+@@ -898,14 +895,14 @@
+ 
+     private void drawWheel(Canvas c,
+                            float x, float y,
+-                           float angle,
+                            boolean braking,
+                            int active,
+                            int brake,
+                            int white) {
+ 
+-        float wheelW = dp(66);
+-        float wheelH = dp(32);
++        // Stationary front-view tires with rubber shoulders and tread.
++        float wheelW = dp(76);
++        float wheelH = dp(40);
+ 
+         RectF tire = new RectF(
+                 x - wheelW / 2f,
+@@ -913,23 +910,38 @@
+                 x + wheelW / 2f,
+                 y + wheelH / 2f);
+ 
+-        stroke.setColor(white);
+-        stroke.setStrokeWidth(dp(4));
+-        c.drawRoundRect(tire, dp(6), dp(6), stroke);
+-
+-        c.save();
+-        c.rotate(angle, x, y);
+-
+-        stroke.setColor(active);
+-        stroke.setStrokeWidth(dp(3));
+-
+-        c.drawLine(x - dp(20), y,
+-                x + dp(20), y, stroke);
+-
+-        c.drawLine(x, y - dp(10),
+-                x, y + dp(10), stroke);
+-
+-        c.restore();
++        paint.setStyle(Paint.Style.FILL);
++        paint.setColor(Color.rgb(8, 12, 15));
++        c.drawRoundRect(tire, dp(10), dp(10), paint);
++
++        stroke.setStyle(Paint.Style.STROKE);
++        stroke.setColor(Color.rgb(144, 157, 165));
++        stroke.setStrokeWidth(dp(2));
++        c.drawRoundRect(tire, dp(10), dp(10), stroke);
++
++        // Inset tread face leaves a dark rubber shoulder around it.
++        RectF tread = new RectF(
++                tire.left + dp(5), tire.top + dp(5),
++                tire.right - dp(5), tire.bottom - dp(5));
++        paint.setColor(Color.rgb(38, 47, 53));
++        c.drawRoundRect(tread, dp(6), dp(6), paint);
++
++        // Two continuous grooves and alternating diagonal tread blocks.
++        stroke.setColor(Color.rgb(9, 15, 19));
++        stroke.setStrokeWidth(dp(2));
++        c.drawLine(tread.left + dp(4), y - dp(5),
++                tread.right - dp(4), y - dp(5), stroke);
++        c.drawLine(tread.left + dp(4), y + dp(5),
++                tread.right - dp(4), y + dp(5), stroke);
++        for (int i = 0; i < 6; i++) {
++            float blockX = tread.left + dp(7 + i * 10);
++            c.drawLine(blockX, tread.top + dp(2),
++                    blockX - dp(4), y - dp(5), stroke);
++            c.drawLine(blockX - dp(4), y + dp(5),
++                    blockX, tread.bottom - dp(2), stroke);
++            c.drawLine(blockX - dp(2), y - dp(4),
++                    blockX + dp(1), y + dp(4), stroke);
++        }
+ 
+         if (braking) {
+             paint.setColor(brake);
