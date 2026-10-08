@@ -1,0 +1,435 @@
+--- a/promethean_hmi/src/com/promethean/core/hmi/PowerFlowView.java
++++ b/promethean_hmi/src/com/promethean/core/hmi/PowerFlowView.java
+@@ -11,7 +11,7 @@
+ import java.util.Locale;
+ 
+ public final class PowerFlowView extends View {
+-    private static final int COLOR_BG = 0xFF070D10;
++    private static final int COLOR_BG = 0xFF000000;
+     private static final int COLOR_PANEL = 0xFF10181D;
+     private static final int COLOR_STROKE = 0xFF27414A;
+     private static final int COLOR_TEXT = 0xFFF2F7F8;
+@@ -22,6 +22,7 @@
+ 
+     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+     private final Path path = new Path();
++    private final NeonVoltBody voltBody = new NeonVoltBody();
+ 
+     private VehicleState state = new DemoVehicleDataSource().read();
+     private float phase = 0f;
+@@ -83,65 +84,36 @@
+     }
+ 
+     private void drawGen1PowerFlow(Canvas canvas, float w, float h) {
+-        // Reserve the lower portion for live diagnostics.
++        // Fit the approved SVG into the artwork area, keeping its true aspect
++        // ratio and leaving the lower live metrics and mode label unobstructed.
+         float diagramBottom = h - dp(178);
+         float diagramTop = dp(14);
+-        float diagramH = Math.max(dp(190), diagramBottom - diagramTop);
+-
+-        // Deep blue halo similar to the original Gen-1 center-stack display.
+-        paint.setStyle(Paint.Style.FILL);
+-        paint.setColor(0xFF07111B);
+-        canvas.drawRect(0, diagramTop, w, diagramBottom, paint);
+-
+-        for (int i = 5; i >= 1; i--) {
+-            int alpha = 10 + i * 7;
+-            paint.setColor((alpha << 24) | 0x001E5A8A);
+-            float inset = dp(i * 9);
+-            RectF glow = new RectF(
+-                    w * 0.08f + inset,
+-                    diagramTop + inset,
+-                    w * 0.92f - inset,
+-                    diagramBottom - inset);
+-            canvas.drawOval(glow, paint);
+-        }
+-
+-        // Enlarge the entire side-view graphic without changing the tuned
+-        // component proportions or spacing relationships.
+-        final float graphicScale = 1.45f;
+-        final float graphicCenterX = w * 0.52f;
+-
+-        float baseBattCx = w * 0.56f;
+-        float battCx = graphicCenterX
+-                + (baseBattCx - graphicCenterX) * graphicScale;
+-
+-        // Side-view wheel baseline.
+-        float wheelY = diagramTop + diagramH * 0.60f;
+-
+-        // Preserve the established proportions while scaling the whole graphic.
+-        float battW = Math.min(w * 0.40f, dp(390)) * 0.40f * graphicScale;
+-        float battH = Math.min(diagramH * 0.28f, dp(112)) * 0.40f * graphicScale;
+-        float engineW = w * 0.13f * 0.72f * graphicScale;
+-        float engineH = diagramH * 0.20f * 0.72f * graphicScale;
+-
+-        // Keep the engine and battery on the same tuned bottom baseline.
+-        float componentBottom = wheelY + dp(14.5f) * graphicScale;
++        float diagramH = diagramBottom - diagramTop;
++        float scale = Math.min((w - dp(36)) / 641f, (diagramH - dp(42)) / 250f);
++        if (scale <= 0f) {
++            return;
++        }
++        float graphicLeft = (w - 641f * scale) / 2f;
++        float graphicTop = diagramTop + (diagramH - dp(42) - 250f * scale) / 2f;
++
++        // The source body has no static wheels: retain the HMI's foreground
++        // wheels, aligned to the source wheel arches, and its state-driven art.
++        float frontWheelX = graphicLeft + 136f * scale;
++        float rearWheelX = graphicLeft + 529f * scale;
++        float wheelY = graphicTop + 185f * scale;
++        float rearWheelY = graphicTop + 184f * scale;
++        float wheelRadius = 46f * scale;
++        float graphicScale = scale;
++        float battCx = graphicLeft + 385f * scale;
++        float battW = 160f * scale;
++        float battH = 45f * scale;
++        float engineW = 60f * scale;
++        float engineH = 65f * scale;
++        float componentBottom = wheelY + 14.5f * scale;
+         float battCy = componentBottom - battH / 2f;
+         float engineCy = componentBottom - engineH / 2f;
+ 
+-        float baseFrontWheelX = w * 0.41f;
+-        float frontWheelX = graphicCenterX
+-                + (baseFrontWheelX - graphicCenterX) * graphicScale;
+-
+-        float baseBattW = Math.min(w * 0.40f, dp(390)) * 0.40f;
+-        float baseRearWheelX = baseBattCx + baseBattW * 0.50f - dp(8);
+-        float rearWheelX = graphicCenterX
+-                + (baseRearWheelX - graphicCenterX) * graphicScale;
+-
+-        float wheelRadius = dp(38) * graphicScale;
+-
+-        // Draw a stylized Gen-1 Volt side body behind the drivetrain art.
+-        drawVoltBody(canvas, frontWheelX, rearWheelX, wheelY, wheelRadius,
+-                diagramTop, diagramH);
++        voltBody.draw(canvas, graphicLeft, graphicTop, scale);
+ 
+         drawGen1Battery(canvas, battCx, battCy, battW, battH);
+ 
+@@ -151,7 +123,7 @@
+ 
+         // Wheels are the foreground layer.
+         drawGen1Wheel(canvas, frontWheelX, wheelY, wheelRadius);
+-        drawGen1Wheel(canvas, rearWheelX, wheelY, wheelRadius);
++        drawGen1Wheel(canvas, rearWheelX, rearWheelY, wheelRadius);
+ 
+         // Neutral flow paths until signed propulsion/regen power is validated.
+         paint.setStyle(Paint.Style.STROKE);
+@@ -173,136 +145,6 @@
+         paint.setColor(COLOR_TEXT);
+         canvas.drawText(mode, w * 0.52f, diagramBottom - dp(14), paint);
+         paint.setTextAlign(Paint.Align.LEFT);
+-    }
+-
+-    private void drawVoltBody(Canvas canvas,
+-                              float frontWheelX,
+-                              float rearWheelX,
+-                              float wheelY,
+-                              float wheelRadius,
+-                              float diagramTop,
+-                              float diagramH) {
+-        // First-generation Chevrolet Volt side profile, front to the left.
+-        // Proportions are based on a true side view: long low nose, wheels
+-        // pushed toward the corners, a low arcing roof and a short hatch tail.
+-        float wheelbase = rearWheelX - frontWheelX;
+-        float noseX = frontWheelX - wheelbase * 0.36f;
+-        float tailX = rearWheelX + wheelbase * 0.30f;
+-
+-        float rockerY = wheelY + wheelRadius * 0.67f;
+-        float hoodY = wheelY - wheelRadius * 0.58f;
+-        float beltY = wheelY - wheelRadius * 0.72f;
+-        float roofY = wheelY - wheelRadius * 1.92f;
+-
+-        path.reset();
+-
+-        // Front fascia and long, nearly horizontal hood.
+-        path.moveTo(noseX, rockerY - wheelRadius * 0.18f);
+-        path.quadTo(noseX - wheelRadius * 0.02f,
+-                hoodY + wheelRadius * 0.34f,
+-                noseX + wheelbase * 0.10f,
+-                hoodY + wheelRadius * 0.18f);
+-        path.lineTo(frontWheelX - wheelRadius * 0.62f, hoodY);
+-
+-        // Hood to A-pillar.
+-        path.quadTo(frontWheelX - wheelRadius * 0.18f,
+-                hoodY - wheelRadius * 0.10f,
+-                frontWheelX + wheelRadius * 0.08f,
+-                hoodY - wheelRadius * 0.18f);
+-        path.lineTo(frontWheelX + wheelbase * 0.20f,
+-                roofY + wheelRadius * 0.44f);
+-
+-        // Roof arc.
+-        path.quadTo(frontWheelX + wheelbase * 0.32f,
+-                roofY,
+-                frontWheelX + wheelbase * 0.47f,
+-                roofY);
+-        path.quadTo(frontWheelX + wheelbase * 0.69f,
+-                roofY + wheelRadius * 0.02f,
+-                rearWheelX - wheelbase * 0.16f,
+-                roofY + wheelRadius * 0.18f);
+-
+-        // Volt's sloping hatch / rear sail panel.
+-        path.quadTo(rearWheelX + wheelbase * 0.02f,
+-                roofY + wheelRadius * 0.40f,
+-                rearWheelX + wheelbase * 0.15f,
+-                beltY + wheelRadius * 0.08f);
+-        path.lineTo(tailX - wheelbase * 0.04f,
+-                beltY + wheelRadius * 0.26f);
+-        path.quadTo(tailX,
+-                beltY + wheelRadius * 0.38f,
+-                tailX,
+-                rockerY - wheelRadius * 0.12f);
+-
+-        // Rear lower body into the rear wheel arch.
+-        path.lineTo(rearWheelX + wheelRadius * 1.02f, rockerY);
+-        path.quadTo(rearWheelX + wheelRadius * 0.92f,
+-                wheelY - wheelRadius * 0.88f,
+-                rearWheelX,
+-                wheelY - wheelRadius * 1.03f);
+-        path.quadTo(rearWheelX - wheelRadius * 0.92f,
+-                wheelY - wheelRadius * 0.88f,
+-                rearWheelX - wheelRadius * 1.02f,
+-                rockerY);
+-
+-        // Rocker panel between the wheels.
+-        path.lineTo(frontWheelX + wheelRadius * 1.02f, rockerY);
+-
+-        // Front wheel arch.
+-        path.quadTo(frontWheelX + wheelRadius * 0.92f,
+-                wheelY - wheelRadius * 0.88f,
+-                frontWheelX,
+-                wheelY - wheelRadius * 1.03f);
+-        path.quadTo(frontWheelX - wheelRadius * 0.92f,
+-                wheelY - wheelRadius * 0.88f,
+-                frontWheelX - wheelRadius * 1.02f,
+-                rockerY);
+-
+-        // Lower front bumper back to the nose.
+-        path.lineTo(noseX + wheelbase * 0.05f, rockerY);
+-        path.close();
+-
+-        paint.setStyle(Paint.Style.FILL);
+-        paint.setColor(0x2419A9D8);
+-        canvas.drawPath(path, paint);
+-
+-        paint.setStyle(Paint.Style.STROKE);
+-        paint.setStrokeWidth(dp(2.2f));
+-        paint.setStrokeCap(Paint.Cap.ROUND);
+-        paint.setStrokeJoin(Paint.Join.ROUND);
+-        paint.setColor(0xFF4E8FA8);
+-        canvas.drawPath(path, paint);
+-
+-        // The Gen-1 Volt's dark greenhouse is one of its strongest profile cues.
+-        path.reset();
+-        float windshieldBaseX = frontWheelX + wheelbase * 0.18f;
+-        float windshieldTopX = frontWheelX + wheelbase * 0.30f;
+-        float hatchTopX = rearWheelX - wheelbase * 0.18f;
+-        float hatchBaseX = rearWheelX + wheelbase * 0.08f;
+-
+-        path.moveTo(windshieldBaseX, beltY);
+-        path.lineTo(windshieldTopX, roofY + wheelRadius * 0.22f);
+-        path.quadTo(frontWheelX + wheelbase * 0.46f,
+-                roofY + wheelRadius * 0.06f,
+-                hatchTopX,
+-                roofY + wheelRadius * 0.22f);
+-        path.lineTo(hatchBaseX, beltY);
+-        path.close();
+-
+-        paint.setStyle(Paint.Style.FILL);
+-        paint.setColor(0x55243138);
+-        canvas.drawPath(path, paint);
+-
+-        paint.setStyle(Paint.Style.STROKE);
+-        paint.setStrokeWidth(dp(1.6f));
+-        paint.setColor(0xAA88C8DE);
+-        canvas.drawPath(path, paint);
+-
+-        // Black beltline / window sill.
+-        paint.setColor(0xCC24343B);
+-        paint.setStrokeWidth(dp(3.0f));
+-        canvas.drawLine(windshieldBaseX, beltY,
+-                hatchBaseX, beltY, paint);
+     }
+ 
+     private void drawGen1Battery(Canvas canvas,
+--- /dev/null
++++ b/promethean_hmi/src/com/promethean/core/hmi/NeonVoltBody.java
+@@ -0,0 +1,176 @@
++package com.promethean.core.hmi;
++
++import android.graphics.Canvas;
++import android.graphics.Paint;
++import android.graphics.Path;
++import android.util.PathParser;
++import java.util.ArrayList;
++import java.util.List;
++
++/** Native vector rendering of the approved wheel-free neon Volt SVG.
++ * Source coordinates: 641 x 250, y=90..340; wheel centers (136,275), (529,274).
++ * Framework PathParser is available to this platform_apis system app.
++ */
++final class NeonVoltBody {
++    private final List<Path> paths = new ArrayList<>();
++    private final List<Float> widths = new ArrayList<>();
++    private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
++
++    NeonVoltBody() {
++        Path p;
++        p = PathParser.createPathFromPathData("M16 260 Q18 229 40 207 Q88 186 178 172 Q217 140 263 125 Q306 112 354 113 L426 115 Q468 117 503 132 L560 151 600 155 Q610 164 616 193 L624 216 626 258 Q623 277 613 286 L581 291 Q584 264 570 239 Q558 218 533 218 Q495 214 479 245 Q470 261 472 294 L188 299 Q187 268 174 242 Q162 221 139 220 Q99 220 85 250 Q77 268 80 298 L34 299 20 286Z");
++        paths.add(p);
++        widths.add(2.1f);
++        p = PathParser.createPathFromPathData("M177 173 Q226 136 272 124 Q325 111 398 117 Q451 117 503 136 L558 152");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M23 231 Q46 208 101 199 L178 180");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M43 205 Q87 190 158 181");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M16 279 Q40 286 79 284 M189 287 L471 281 M583 272 L623 268");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M189 297 L472 292 475 280 Q424 287 207 288Z");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M84 249 Q96 220 135 219 Q172 219 183 251 M477 246 Q491 216 530 217 Q566 216 579 249");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M185 184 Q222 147 270 135 Q321 121 388 126 Q454 127 499 151 Q509 159 497 179 L217 195 175 197 165 193Z");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M208 181 Q229 150 271 139 Q304 129 353 130 L343 178 217 187Z");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M376 130 Q439 133 490 154 L484 169 Q438 175 368 177Z");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M353 130 L375 130 367 178 343 180Z");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M360 132 L355 177 M372 133 L365 176");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M209 171 L203 185 190 186 195 177Z");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M492 154 L488 173 Q450 179 219 192");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M207 195 Q201 219 204 257 L208 281 Q209 287 220 286 L361 283 360 193");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M501 178 L493 201 Q480 235 457 267 Q443 281 417 282 L361 283");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M200 194 L191 247");
++        paths.add(p);
++        widths.add(1.7f);
++        p = new Path();
++        p.addCircle(187f, 217f, 10.5f, Path.Direction.CW);
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M-13 0 Q0-5 13-1 L14 3 Q2 8-13 4Z");
++        p.offset(333f, 198f);
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M-10-2H8Q12-2 11 1H-10Z");
++        p.offset(333f, 198f);
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M-9 4H9");
++        p.offset(333f, 198f);
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M-13 0 Q0-5 13-1 L14 3 Q2 8-13 4Z");
++        p.offset(467f, 192f);
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M-10-2H8Q12-2 11 1H-10Z");
++        p.offset(467f, 192f);
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M-9 4H9");
++        p.offset(467f, 192f);
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M212 186 L225 176 247 176 252 185 231 191Z");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M226 175 Q232 161 246 162 Q260 162 260 176 L252 181 228 179Z");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M229 174 L254 174");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M38 211 L95 201 84 213 33 223Z");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M40 212 L80 207 72 214 35 220Z");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M80 206 L94 203 85 212 75 214Z");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M24 253 Q39 249 54 251 L51 269 21 270Z");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M28 254 L50 254 48 265 26 264Z");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M17 275 L34 278 34 287 21 285Z");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M546 178 Q551 168 562 166 L599 164 606 178Z");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M551 175 L559 170 598 168 602 174Z");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M560 170 L598 170");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M612 185 L618 210 624 215");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M623 237 L627 237 626 259 623 261Z");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M553 151 L602 153 595 159 566 156Z");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M552 151 L598 153");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M425 117 L426 106 435 96 436 114Z");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M426 113 L433 101");
++        paths.add(p);
++        widths.add(1.7f);
++        p = PathParser.createPathFromPathData("M167 194 L204 190 202 196 179 199Z");
++        paths.add(p);
++        widths.add(1.7f);
++        paint.setStyle(Paint.Style.STROKE);
++        paint.setColor(0xFF00BFFF);
++        paint.setStrokeCap(Paint.Cap.ROUND);
++        paint.setStrokeJoin(Paint.Join.ROUND);
++    }
++
++    void draw(Canvas canvas, float left, float top, float scale) {
++        int save = canvas.save();
++        canvas.translate(left, top);
++        canvas.scale(scale, scale);
++        canvas.translate(0f, -90f);
++        paint.setShadowLayer(2.8f, 0f, 0f, 0xCC00BFFF);
++        for (int i = 0; i < paths.size(); i++) {
++            paint.setStrokeWidth(widths.get(i));
++            canvas.drawPath(paths.get(i), paint);
++        }
++        paint.clearShadowLayer();
++        canvas.restoreToCount(save);
++    }
++}
