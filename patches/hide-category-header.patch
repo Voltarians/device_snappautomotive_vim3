@@ -1,6 +1,10 @@
 --- a/promethean_hmi/src/com/promethean/core/hmi/MainActivity.java
 +++ b/promethean_hmi/src/com/promethean/core/hmi/MainActivity.java
-@@ -446,2 +446,2 @@
+@@ -498,6 +498,6 @@
      private void showCategoryChrome() {
+         twelveVoltContent.setVisibility(View.GONE);
 -        topBar.setVisibility(View.VISIBLE);
 +        topBar.setVisibility(View.GONE);
+         sideNav.setVisibility(View.GONE);
+         rightInfoPanel.setVisibility(View.GONE);
+         bottomQuickBar.setVisibility(View.VISIBLE);
