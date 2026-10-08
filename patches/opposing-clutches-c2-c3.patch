@@ -1,0 +1,123 @@
+--- a/promethean_hmi/src/com/promethean/core/hmi/VoltecDrivetrainView.java
++++ b/promethean_hmi/src/com/promethean/core/hmi/VoltecDrivetrainView.java
+@@ -17,6 +17,8 @@
+ 
+     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+     private final Paint stroke = new Paint(Paint.ANTI_ALIAS_FLAG);
++    private final Paint clutchPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
++    private final RectF clutchRect = new RectF();
+ 
+     private long lastFrameNs;
+ 
+@@ -459,6 +461,11 @@
+         c.drawLine(c2RingX, c2Y,
+                 c2RingX, cy - ringRadius * 0.72f, stroke);
+ 
++        // C2 uses the same opposing shoe design as C3.
++        drawClutch(c, c2X, c2Y,
++                "C2", c2Applied,
++                engineGenerating ? red : active, muted);
++
+         int ringColor = c1Applied
+                 ? (engineGenerating ? red : active)
+                 : (c2Applied ? active : white);
+@@ -819,26 +826,80 @@
+                             String label, boolean applied,
+                             int appliedColor, int releasedColor) {
+ 
++        // Short vertical shoes from the approved opposing clutch SVG.
++        // Applied faces touch; released faces separate by 8dp.
+         int color = applied ? appliedColor : releasedColor;
+-
+-        stroke.setColor(color);
+-        stroke.setStrokeWidth(dp(4));
+-
+-        c.drawLine(x - dp(14), y - dp(16),
+-                x - dp(14), y + dp(16), stroke);
+-
+-        c.drawLine(x + dp(14), y - dp(16),
+-                x + dp(14), y + dp(16), stroke);
+-
+-        if (applied) {
+-            c.drawLine(x - dp(14), y,
+-                    x + dp(14), y, stroke);
+-        }
+-
+-        paint.setColor(color);
+-        paint.setTextAlign(Paint.Align.CENTER);
+-        paint.setTextSize(dp(10));
+-        c.drawText(label, x, y - dp(23), paint);
++        float shoeHeight = dp(32);
++        float shoeWidth = shoeHeight * 21f / 72f;
++        float gap = applied ? 0f : dp(8);
++        float left = x - gap / 2f - shoeWidth;
++        float right = x + gap / 2f;
++        float top = y - shoeHeight / 2f;
++
++        clutchPaint.setStyle(Paint.Style.STROKE);
++        clutchPaint.setStrokeCap(Paint.Cap.ROUND);
++        clutchPaint.setStrokeWidth(dp(5));
++        clutchPaint.setColor(color);
++        c.drawLine(x - dp(14), y, left, y, clutchPaint);
++        c.drawLine(right + shoeWidth, y, x + dp(14), y, clutchPaint);
++
++        drawClutchShoe(c, left, top, shoeWidth, shoeHeight,
++                true, color, applied);
++        drawClutchShoe(c, right, top, shoeWidth, shoeHeight,
++                false, color, applied);
++
++        clutchPaint.setStyle(Paint.Style.FILL);
++        clutchPaint.setColor(Color.WHITE);
++        clutchPaint.setTextAlign(Paint.Align.CENTER);
++        clutchPaint.setTextSize(dp(10));
++        clutchPaint.setFakeBoldText(true);
++        c.drawText(label, x, top - dp(7), clutchPaint);
++    }
++
++    private void drawClutchShoe(Canvas c, float left, float top,
++                                float width, float height,
++                                boolean facesRight, int faceColor,
++                                boolean applied) {
++        float radius = height * 5f / 72f;
++        float faceWidth = width * 13f / 21f;
++        float faceLeft = facesRight ? left + width - faceWidth : left;
++        int edgeColor = applied ? Color.rgb(106, 143, 121)
++                : Color.rgb(120, 135, 145);
++
++        clutchRect.set(left, top, left + width, top + height);
++        clutchPaint.setStyle(Paint.Style.FILL);
++        clutchPaint.setColor(applied ? Color.rgb(23, 59, 42)
++                : Color.rgb(25, 35, 42));
++        c.drawRoundRect(clutchRect, radius, radius, clutchPaint);
++        clutchPaint.setStyle(Paint.Style.STROKE);
++        clutchPaint.setStrokeWidth(dp(0.7f));
++        clutchPaint.setColor(edgeColor);
++        c.drawRoundRect(clutchRect, radius, radius, clutchPaint);
++
++        clutchRect.set(faceLeft, top, faceLeft + faceWidth, top + height);
++        clutchPaint.setStyle(Paint.Style.FILL);
++        clutchPaint.setColor(faceColor);
++        c.drawRoundRect(clutchRect, radius, radius, clutchPaint);
++        clutchPaint.setStyle(Paint.Style.STROKE);
++        clutchPaint.setStrokeWidth(dp(0.55f));
++        clutchPaint.setColor(edgeColor);
++        c.drawRoundRect(clutchRect, radius, radius, clutchPaint);
++
++        // Reinforcement edge faces outward; friction faces face inward.
++        float edgeX = facesRight ? left + width * 3f / 21f
++                : left + width * 18f / 21f;
++        clutchPaint.setStrokeWidth(dp(0.7f));
++        clutchPaint.setColor(faceColor);
++        c.drawLine(edgeX, top + height * 5f / 72f,
++                edgeX, top + height * 67f / 72f, clutchPaint);
++
++        clutchPaint.setStyle(Paint.Style.FILL);
++        clutchPaint.setColor(Color.rgb(11, 22, 28));
++        float rivetX = faceLeft + faceWidth / 2f;
++        for (int i = 0; i < 3; i++) {
++            float rivetY = top + height * (12f + 24f * i) / 72f;
++            c.drawCircle(rivetX, rivetY, height * 2.3f / 72f, clutchPaint);
++        }
+     }
+ 
+     private void drawWheel(Canvas c,
