@@ -1,0 +1,6 @@
+--- a/promethean_hmi/src/com/promethean/core/hmi/MainActivity.java
++++ b/promethean_hmi/src/com/promethean/core/hmi/MainActivity.java
+@@ -446,2 +446,2 @@
+     private void showCategoryChrome() {
+-        topBar.setVisibility(View.VISIBLE);
++        topBar.setVisibility(View.GONE);
